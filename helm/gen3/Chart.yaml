@@ -109,7 +109,7 @@ dependencies:
   repository: "https://helm.elastic.co"
   condition: global.dev
 - name: postgresql
-  version: 11.9.13
+  version: 11.8.*
   repository: "https://charts.bitnami.com/bitnami"
   condition: global.dev
 
