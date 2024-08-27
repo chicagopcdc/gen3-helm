@@ -154,17 +154,5 @@ version: 0.1.37
 appVersion: "master"
 
 maintainers:
-  - name: ahilt
-    email: ahilt@uchicago.edu
-
-  - name: ajoaugustine
-    email: ajoa@uchicago.edu
-
-  - name: emalinowski
-    email: emalinowski@uchicago.edu
-
-  - name: EliseCastle23
-    email: elisemcastle@uchicago.edu
-
-  - name: jawadqur
-    email: qureshi@uchicago.edu
+  - name: Paul
+    email: pmurdoch@uchicago.edu
