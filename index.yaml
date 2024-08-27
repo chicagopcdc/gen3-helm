@@ -1,5 +1,24 @@
 apiVersion: v1
 entries:
+  arborist:
+  - apiVersion: v2
+    appVersion: master
+    created: "2024-08-27T23:39:26.481552782Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.1.11
+    - condition: postgres.separate
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.9.13
+    description: A Helm chart for gen3 arborist
+    digest: e2aceab5247ec65e48d4038ad0373317cf7dd627cf16ba7875614bedb127ee5a
+    name: arborist
+    type: application
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/arborist-0.1.11/arborist-0.1.11.tgz
+    version: 0.1.11
   common:
   - apiVersion: v2
     appVersion: master
@@ -11,4 +30,90 @@ entries:
     urls:
     - https://github.com/chicagopcdc/gen3-helm/releases/download/common-0.1.11/common-0.1.11.tgz
     version: 0.1.11
-generated: "2024-08-27T21:11:30.663818216Z"
+  fence:
+  - apiVersion: v2
+    appVersion: master
+    created: "2024-08-27T23:39:26.762188511Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.1.11
+    - condition: postgres.separate
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.9.13
+    description: A Helm chart for gen3 Fence
+    digest: ab60482d441b92e169333182e0ab42222242ee033d3dd46f46af67a5ed84a180
+    name: fence
+    type: application
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/fence-0.1.18/fence-0.1.18.tgz
+    version: 0.1.18
+  gearbox:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2024-08-27T23:39:26.895092339Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.1.11
+    - condition: postgres.separate
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.9.13
+    description: A Helm chart for Kubernetes
+    digest: e12da5b2763afcacc3d4079e79a53b3c5ffe3172e82c66253fa5a2968bb35c4b
+    name: gearbox
+    type: application
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/gearbox-0.1.0/gearbox-0.1.0.tgz
+    version: 0.1.0
+  gearbox-middleware:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2024-08-27T23:39:27.026096445Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.1.11
+    - name: gearbox
+      repository: file://../gearbox
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 1697f383934454a2aedc474542417ce0f181e39db735d3a235438939fb6e60fa
+    name: gearbox-middleware
+    type: application
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/gearbox-middleware-0.1.0/gearbox-middleware-0.1.0.tgz
+    version: 0.1.0
+  portal:
+  - apiVersion: v2
+    appVersion: master
+    created: "2024-08-27T23:39:27.201803184Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.1.11
+    description: A Helm chart for gen3 data-portal
+    digest: 13e5666de0e82280bbabb50bfd3e7a8612d1293875054dd56f760845f0e5a29d
+    name: portal
+    type: application
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/portal-0.1.15/portal-0.1.15.tgz
+    version: 0.1.15
+  revproxy:
+  - apiVersion: v2
+    appVersion: master
+    created: "2024-08-27T23:39:27.334729095Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.1.11
+    description: A Helm chart for gen3 revproxy
+    digest: a3a326b0fd8e77da8defbe333c4ad076304927452a31a93ac6141f5b430ba81e
+    name: revproxy
+    type: application
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/revproxy-0.1.14/revproxy-0.1.14.tgz
+    version: 0.1.14
+generated: "2024-08-27T23:39:27.334744193Z"
