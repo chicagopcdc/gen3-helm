@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  common:
+  - apiVersion: v2
+    appVersion: master
+    created: "2024-08-27T21:11:30.663811974Z"
+    description: A Helm chart for provisioning databases in gen3
+    digest: 2ab19081b69ae468b25ac7a2773dba6f320ef683f8f329e5600a34baec165f62
+    name: common
+    type: library
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/common-0.1.11/common-0.1.11.tgz
+    version: 0.1.11
+generated: "2024-08-27T21:11:30.663818216Z"
