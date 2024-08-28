@@ -12,8 +12,11 @@ metadata:
   name: {{ .Chart.Name }}-dbcreate-role
 rules:
 - apiGroups: [""]
-  resources: ["secrets"]
+  resources: ["pods", "secrets", "configmaps"]
   verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
