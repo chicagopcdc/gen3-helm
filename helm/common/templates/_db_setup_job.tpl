@@ -12,11 +12,8 @@ metadata:
   name: {{ .Chart.Name }}-dbcreate-role
 rules:
 - apiGroups: [""]
-  resources: ["pods", "secrets", "configmaps"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: [""]
-  resources: ["pods/exec"]
-  verbs: ["create"]
+  resources: ["secrets"]
+  verbs: ["*"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -46,7 +43,7 @@ spec:
       # TODO : READ FROM CENTRAL FUNCTION TOO?
         app: gen3job
     spec:
-      serviceAccountName: {{ .Chart.Name }}-dbcreate-sa
+      serviceAccountName: helm-dbcreate-sa
       restartPolicy: Never
       containers:
       - name: db-setup
