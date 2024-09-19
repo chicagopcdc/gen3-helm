@@ -1,11 +1,6 @@
 # DB Setup ServiceAccount
 # Needs to update/ create secrets to signal that db is ready for use.
 {{- define "common.db_setup_sa" -}}
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: {{ .Chart.Name }}-dbcreate-sa
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -21,7 +16,7 @@ metadata:
   name: {{ .Chart.Name }}-dbcreate-rolebinding
 subjects:
 - kind: ServiceAccount
-  name: {{ .Chart.Name }}-dbcreate-sa
+  name: helm-dbcreate-sa
   namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
