@@ -22,6 +22,16 @@ entries:
   common:
   - apiVersion: v2
     appVersion: master
+    created: "2024-09-19T22:44:47.876996056Z"
+    description: A Helm chart for provisioning databases in gen3
+    digest: 766fd30ad7c2280752e24acfbb8850cc7943a31b4a34e35121dae935a2bdafbd
+    name: common
+    type: library
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/common-0.1.15/common-0.1.15.tgz
+    version: 0.1.15
+  - apiVersion: v2
+    appVersion: master
     created: "2024-08-28T01:59:03.017753964Z"
     description: A Helm chart for provisioning databases in gen3
     digest: fc7ae41f8d46304d6abbf03bbcda88facbcdebbeabc2dc47586f9658b15ff401
@@ -51,6 +61,24 @@ entries:
     - https://github.com/chicagopcdc/gen3-helm/releases/download/common-0.1.11/common-0.1.11.tgz
     version: 0.1.11
   fence:
+  - apiVersion: v2
+    appVersion: master
+    created: "2024-09-19T22:44:48.049477118Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.1.15
+    - condition: postgres.separate
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.9.13
+    description: A Helm chart for gen3 Fence
+    digest: 847e3605480b54fb35caf7e163b94fade0a79e37676c038422fcaf675b52013f
+    name: fence
+    type: application
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/fence-0.1.23/fence-0.1.23.tgz
+    version: 0.1.23
   - apiVersion: v2
     appVersion: master
     created: "2024-08-28T01:59:03.169675939Z"
@@ -143,6 +171,139 @@ entries:
     - https://github.com/chicagopcdc/gen3-helm/releases/download/gearbox-middleware-0.1.0/gearbox-middleware-0.1.0.tgz
     version: 0.1.0
   gen3:
+  - apiVersion: v2
+    appVersion: master
+    created: "2024-09-19T22:44:48.326915917Z"
+    dependencies:
+    - condition: ambassador.enabled
+      name: ambassador
+      repository: file://../ambassador
+      version: 0.1.11
+    - condition: arborist.enabled
+      name: arborist
+      repository: file://../arborist
+      version: 0.1.11
+    - condition: argo-wrapper.enabled
+      name: argo-wrapper
+      repository: file://../argo-wrapper
+      version: 0.1.7
+    - condition: audit.enabled
+      name: audit
+      repository: file://../audit
+      version: 0.1.12
+    - condition: aws-es-proxy.enabled
+      name: aws-es-proxy
+      repository: file://../aws-es-proxy
+      version: 0.1.9
+    - name: common
+      repository: file://../common
+      version: 0.1.15
+    - condition: etl.enabled
+      name: etl
+      repository: file://../etl
+      version: 0.1.1
+    - condition: frontend-framework.enabled
+      name: frontend-framework
+      repository: file://../frontend-framework
+      version: 0.1.1
+    - condition: fence.enabled
+      name: fence
+      repository: file://../fence
+      version: 0.1.23
+    - condition: guppy.enabled
+      name: guppy
+      repository: file://../guppy
+      version: 0.1.11
+    - condition: hatchery.enabled
+      name: hatchery
+      repository: file://../hatchery
+      version: 0.1.9
+    - condition: indexd.enabled
+      name: indexd
+      repository: file://../indexd
+      version: 0.1.14
+    - condition: manifestservice.enabled
+      name: manifestservice
+      repository: file://../manifestservice
+      version: 0.1.14
+    - condition: metadata.enabled
+      name: metadata
+      repository: file://../metadata
+      version: 0.1.12
+    - condition: peregrine.enabled
+      name: peregrine
+      repository: file://../peregrine
+      version: 0.1.13
+    - condition: pidgin.enabled
+      name: pidgin
+      repository: file://../pidgin
+      version: 0.1.10
+    - condition: portal.enabled
+      name: portal
+      repository: file://../portal
+      version: 0.1.15
+    - condition: requestor.enabled
+      name: requestor
+      repository: file://../requestor
+      version: 0.1.11
+    - condition: revproxy.enabled
+      name: revproxy
+      repository: file://../revproxy
+      version: 0.1.14
+    - condition: sheepdog.enabled
+      name: sheepdog
+      repository: file://../sheepdog
+      version: 0.1.14
+    - condition: ssjdispatcher.enabled
+      name: ssjdispatcher
+      repository: file://../ssjdispatcher
+      version: 0.1.9
+    - condition: sower.enabled
+      name: sower
+      repository: file://../sower
+      version: 0.1.11
+    - condition: wts.enabled
+      name: wts
+      repository: file://../wts
+      version: 0.1.13
+    - condition: pcdcanalysistools.enabled
+      name: pcdcanalysistools
+      repository: file://../pcdcanalysistools
+      version: 0.1.0
+    - condition: amanuensis.enabled
+      name: amanuensis
+      repository: file://../amanuensis
+      version: 0.1.1
+    - condition: gearbox.enabled
+      name: gearbox
+      repository: file://../gearbox
+      version: 0.1.0
+    - condition: gearbox-middleware.enabled
+      name: gearbox-middleware
+      repository: file://../gearbox-middleware
+      version: 0.1.0
+    - condition: elasticsearch.enabled
+      name: elasticsearch
+      repository: https://helm.elastic.co
+      version: 7.10.2
+    - condition: global.dev
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.9.13
+    - condition: neuvector.enabled
+      name: neuvector
+      repository: file://../neuvector
+      version: 0.1.0
+    description: Helm chart to deploy Gen3 Data Commons
+    digest: b2a46ca918d8707e19de88ffe885f8e1f1be009bcb43ed93e7b8d60527a0d74e
+    maintainers:
+    - email: pmurdoch@uchicago.edu
+      name: Paul
+    name: gen3
+    type: application
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/gen3-0.1.42/gen3-0.1.42.tgz
+    version: 0.1.42
   - apiVersion: v2
     appVersion: master
     created: "2024-09-19T22:37:46.747186943Z"
@@ -838,4 +999,4 @@ entries:
     urls:
     - https://github.com/chicagopcdc/gen3-helm/releases/download/revproxy-0.1.14/revproxy-0.1.14.tgz
     version: 0.1.14
-generated: "2024-09-19T22:37:46.747209725Z"
+generated: "2024-09-19T22:44:48.32697086Z"
