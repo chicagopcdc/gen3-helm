@@ -229,6 +229,139 @@ entries:
   gen3:
   - apiVersion: v2
     appVersion: master
+    created: "2024-09-21T00:10:51.477035359Z"
+    dependencies:
+    - condition: ambassador.enabled
+      name: ambassador
+      repository: file://../ambassador
+      version: 0.1.11
+    - condition: arborist.enabled
+      name: arborist
+      repository: file://../arborist
+      version: 0.1.11
+    - condition: argo-wrapper.enabled
+      name: argo-wrapper
+      repository: file://../argo-wrapper
+      version: 0.1.7
+    - condition: audit.enabled
+      name: audit
+      repository: file://../audit
+      version: 0.1.12
+    - condition: aws-es-proxy.enabled
+      name: aws-es-proxy
+      repository: file://../aws-es-proxy
+      version: 0.1.9
+    - name: common
+      repository: file://../common
+      version: 0.1.17
+    - condition: etl.enabled
+      name: etl
+      repository: file://../etl
+      version: 0.1.1
+    - condition: frontend-framework.enabled
+      name: frontend-framework
+      repository: file://../frontend-framework
+      version: 0.1.1
+    - condition: fence.enabled
+      name: fence
+      repository: file://../fence
+      version: 0.1.25
+    - condition: guppy.enabled
+      name: guppy
+      repository: file://../guppy
+      version: 0.1.11
+    - condition: hatchery.enabled
+      name: hatchery
+      repository: file://../hatchery
+      version: 0.1.9
+    - condition: indexd.enabled
+      name: indexd
+      repository: file://../indexd
+      version: 0.1.14
+    - condition: manifestservice.enabled
+      name: manifestservice
+      repository: file://../manifestservice
+      version: 0.1.14
+    - condition: metadata.enabled
+      name: metadata
+      repository: file://../metadata
+      version: 0.1.12
+    - condition: peregrine.enabled
+      name: peregrine
+      repository: file://../peregrine
+      version: 0.1.13
+    - condition: pidgin.enabled
+      name: pidgin
+      repository: file://../pidgin
+      version: 0.1.10
+    - condition: portal.enabled
+      name: portal
+      repository: file://../portal
+      version: 0.1.15
+    - condition: requestor.enabled
+      name: requestor
+      repository: file://../requestor
+      version: 0.1.11
+    - condition: revproxy.enabled
+      name: revproxy
+      repository: file://../revproxy
+      version: 0.1.14
+    - condition: sheepdog.enabled
+      name: sheepdog
+      repository: file://../sheepdog
+      version: 0.1.14
+    - condition: ssjdispatcher.enabled
+      name: ssjdispatcher
+      repository: file://../ssjdispatcher
+      version: 0.1.9
+    - condition: sower.enabled
+      name: sower
+      repository: file://../sower
+      version: 0.1.11
+    - condition: wts.enabled
+      name: wts
+      repository: file://../wts
+      version: 0.1.13
+    - condition: pcdcanalysistools.enabled
+      name: pcdcanalysistools
+      repository: file://../pcdcanalysistools
+      version: 0.1.0
+    - condition: amanuensis.enabled
+      name: amanuensis
+      repository: file://../amanuensis
+      version: 0.1.1
+    - condition: gearbox.enabled
+      name: gearbox
+      repository: file://../gearbox
+      version: 0.1.0
+    - condition: gearbox-middleware.enabled
+      name: gearbox-middleware
+      repository: file://../gearbox-middleware
+      version: 0.1.0
+    - condition: elasticsearch.enabled
+      name: elasticsearch
+      repository: https://helm.elastic.co
+      version: 7.10.2
+    - condition: global.dev
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 14.3.3
+    - condition: neuvector.enabled
+      name: neuvector
+      repository: file://../neuvector
+      version: 0.1.0
+    description: Helm chart to deploy Gen3 Data Commons
+    digest: 8e427000722f810c9d598a137d97f2f94554c55759fe39449453ff57e585dcc8
+    maintainers:
+    - email: pmurdoch@uchicago.edu
+      name: Paul
+    name: gen3
+    type: application
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/gen3-0.1.45/gen3-0.1.45.tgz
+    version: 0.1.45
+  - apiVersion: v2
+    appVersion: master
     created: "2024-09-19T23:24:31.919727028Z"
     dependencies:
     - condition: ambassador.enabled
@@ -1321,4 +1454,4 @@ entries:
     urls:
     - https://github.com/chicagopcdc/gen3-helm/releases/download/revproxy-0.1.14/revproxy-0.1.14.tgz
     version: 0.1.14
-generated: "2024-09-19T23:24:31.919793222Z"
+generated: "2024-09-21T00:10:51.477104158Z"
