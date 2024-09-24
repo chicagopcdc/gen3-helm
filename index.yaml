@@ -22,6 +22,16 @@ entries:
   common:
   - apiVersion: v2
     appVersion: master
+    created: "2024-09-24T20:58:01.862323906Z"
+    description: A Helm chart for provisioning databases in gen3
+    digest: 1b7fd72d1436a512fdfd47a5d7fe3f6d8f539e9997316bde6c59bbfd5c574832
+    name: common
+    type: library
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/common-0.1.18/common-0.1.18.tgz
+    version: 0.1.18
+  - apiVersion: v2
+    appVersion: master
     created: "2024-09-19T23:24:31.586261909Z"
     description: A Helm chart for provisioning databases in gen3
     digest: 7de8d05fab6102a9811774a4d4125d5906b38940a83065a893fccdbe3cf086a1
@@ -81,6 +91,24 @@ entries:
     - https://github.com/chicagopcdc/gen3-helm/releases/download/common-0.1.11/common-0.1.11.tgz
     version: 0.1.11
   fence:
+  - apiVersion: v2
+    appVersion: master
+    created: "2024-09-24T20:58:02.002638702Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.1.18
+    - condition: postgres.separate
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.9.13
+    description: A Helm chart for gen3 Fence
+    digest: c5090a8315619e657cb2e2a6d3db48c1cc0540fe0a348a43933112bbe5d090fc
+    name: fence
+    type: application
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/fence-0.1.27/fence-0.1.27.tgz
+    version: 0.1.27
   - apiVersion: v2
     appVersion: master
     created: "2024-09-23T18:41:23.58955799Z"
@@ -245,6 +273,139 @@ entries:
     - https://github.com/chicagopcdc/gen3-helm/releases/download/gearbox-middleware-0.1.0/gearbox-middleware-0.1.0.tgz
     version: 0.1.0
   gen3:
+  - apiVersion: v2
+    appVersion: master
+    created: "2024-09-24T20:58:02.212502449Z"
+    dependencies:
+    - condition: ambassador.enabled
+      name: ambassador
+      repository: file://../ambassador
+      version: 0.1.11
+    - condition: arborist.enabled
+      name: arborist
+      repository: file://../arborist
+      version: 0.1.11
+    - condition: argo-wrapper.enabled
+      name: argo-wrapper
+      repository: file://../argo-wrapper
+      version: 0.1.7
+    - condition: audit.enabled
+      name: audit
+      repository: file://../audit
+      version: 0.1.12
+    - condition: aws-es-proxy.enabled
+      name: aws-es-proxy
+      repository: file://../aws-es-proxy
+      version: 0.1.9
+    - name: common
+      repository: file://../common
+      version: 0.1.18
+    - condition: etl.enabled
+      name: etl
+      repository: file://../etl
+      version: 0.1.1
+    - condition: frontend-framework.enabled
+      name: frontend-framework
+      repository: file://../frontend-framework
+      version: 0.1.1
+    - condition: fence.enabled
+      name: fence
+      repository: file://../fence
+      version: 0.1.27
+    - condition: guppy.enabled
+      name: guppy
+      repository: file://../guppy
+      version: 0.1.11
+    - condition: hatchery.enabled
+      name: hatchery
+      repository: file://../hatchery
+      version: 0.1.9
+    - condition: indexd.enabled
+      name: indexd
+      repository: file://../indexd
+      version: 0.1.14
+    - condition: manifestservice.enabled
+      name: manifestservice
+      repository: file://../manifestservice
+      version: 0.1.14
+    - condition: metadata.enabled
+      name: metadata
+      repository: file://../metadata
+      version: 0.1.12
+    - condition: peregrine.enabled
+      name: peregrine
+      repository: file://../peregrine
+      version: 0.1.13
+    - condition: pidgin.enabled
+      name: pidgin
+      repository: file://../pidgin
+      version: 0.1.10
+    - condition: portal.enabled
+      name: portal
+      repository: file://../portal
+      version: 0.1.15
+    - condition: requestor.enabled
+      name: requestor
+      repository: file://../requestor
+      version: 0.1.11
+    - condition: revproxy.enabled
+      name: revproxy
+      repository: file://../revproxy
+      version: 0.1.14
+    - condition: sheepdog.enabled
+      name: sheepdog
+      repository: file://../sheepdog
+      version: 0.1.14
+    - condition: ssjdispatcher.enabled
+      name: ssjdispatcher
+      repository: file://../ssjdispatcher
+      version: 0.1.9
+    - condition: sower.enabled
+      name: sower
+      repository: file://../sower
+      version: 0.1.11
+    - condition: wts.enabled
+      name: wts
+      repository: file://../wts
+      version: 0.1.13
+    - condition: pcdcanalysistools.enabled
+      name: pcdcanalysistools
+      repository: file://../pcdcanalysistools
+      version: 0.1.0
+    - condition: amanuensis.enabled
+      name: amanuensis
+      repository: file://../amanuensis
+      version: 0.1.1
+    - condition: gearbox.enabled
+      name: gearbox
+      repository: file://../gearbox
+      version: 0.1.0
+    - condition: gearbox-middleware.enabled
+      name: gearbox-middleware
+      repository: file://../gearbox-middleware
+      version: 0.1.0
+    - condition: elasticsearch.enabled
+      name: elasticsearch
+      repository: https://helm.elastic.co
+      version: 7.10.2
+    - condition: global.dev
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 14.3.3
+    - condition: neuvector.enabled
+      name: neuvector
+      repository: file://../neuvector
+      version: 0.1.0
+    description: Helm chart to deploy Gen3 Data Commons
+    digest: a2a1300e9cb8e1fa8e7cd083e77eb8c7e92015f5133e17b5181180c4320cdf15
+    maintainers:
+    - email: pmurdoch@uchicago.edu
+      name: Paul
+    name: gen3
+    type: application
+    urls:
+    - https://github.com/chicagopcdc/gen3-helm/releases/download/gen3-0.1.47/gen3-0.1.47.tgz
+    version: 0.1.47
   - apiVersion: v2
     appVersion: master
     created: "2024-09-23T18:41:23.839123735Z"
@@ -1605,4 +1766,4 @@ entries:
     urls:
     - https://github.com/chicagopcdc/gen3-helm/releases/download/revproxy-0.1.14/revproxy-0.1.14.tgz
     version: 0.1.14
-generated: "2024-09-23T18:41:23.839197092Z"
+generated: "2024-09-24T20:58:02.212602796Z"
