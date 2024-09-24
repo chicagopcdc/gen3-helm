@@ -16,7 +16,7 @@ metadata:
   name: {{ .Chart.Name }}-dbcreate-rolebinding
 subjects:
 - kind: ServiceAccount
-  name: helm-dbcreate-sa
+  name: gen3-root-user-sa
   namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
@@ -38,7 +38,7 @@ spec:
       # TODO : READ FROM CENTRAL FUNCTION TOO?
         app: gen3job
     spec:
-      serviceAccountName: helm-dbcreate-sa
+      serviceAccountName: gen3-root-user-sa
       restartPolicy: Never
       containers:
       - name: db-setup
