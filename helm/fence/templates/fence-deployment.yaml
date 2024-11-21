@@ -34,6 +34,9 @@ spec:
         - name: fence
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false 
           ports:
             - name: http
               containerPort: 80
@@ -75,6 +78,24 @@ spec:
           volumeMounts:
             {{- toYaml .Values.volumeMounts | nindent 12 }}
       initContainers:
+        # - name: fence-transer-init
+        #   image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        #   imagePullPolicy: {{ .Values.image.pullPolicy }}
+        #   ports:
+        #     - name: http
+        #       containerPort: 80
+        #       protocol: TCP
+        #     - name: https
+        #       containerPort: 443
+        #       protocol: TCP
+        #     - name: container
+        #       containerPort: 6567
+        #       protocol: TCP
+        #   command:
+        #   - /bin/sh
+        #   - -c
+        #   - |
+        #     chmod -R 777 /var/www/fence;
         - name: fence-init
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
