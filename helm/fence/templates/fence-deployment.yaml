@@ -126,6 +126,7 @@ spec:
                 fi
               else
                 echo "Db migration not available in this version of fence"
+              fi
           volumeMounts:
             {{- toYaml .Values.initVolumeMounts | nindent 12 }}
           env:
