@@ -86,7 +86,9 @@ spec:
           args:
             - "-c"
             - |
-              chmod -R 777 /var/www/fence;
+              {{- range .Values.initContainerCommands }}
+              {{ . }};
+              {{- end }}
         - name: fence-init  
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
