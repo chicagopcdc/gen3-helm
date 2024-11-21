@@ -200,6 +200,8 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+containerSecurityContext: {}
+
 # -- (map) Kubernetes service information.
 service:
   # -- (string) Type of service. Valid values are "ClusterIP", "NodePort", "LoadBalancer", "ExternalName".

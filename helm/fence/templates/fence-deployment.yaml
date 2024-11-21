@@ -34,9 +34,10 @@ spec:
         - name: fence
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.containerSecurityContext }}
           securityContext:
-            runAsNonRoot: true
-            allowPrivilegeEscalation: false 
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
           ports:
             - name: http
               containerPort: 80
