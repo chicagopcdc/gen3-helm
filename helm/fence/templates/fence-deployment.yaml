@@ -83,9 +83,10 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           command: ["/bin/bash"]
-          - "-c"
-          - |
-            chmod -R 777 /var/www/fence;
+          args:
+            - "-c"
+            - |
+              chmod -R 777 /var/www/fence;
         - name: fence-init  
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
