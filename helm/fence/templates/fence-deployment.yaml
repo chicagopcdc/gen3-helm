@@ -87,7 +87,7 @@ spec:
               {{ . }};
               {{- end }}
           volumeMounts:
-            {{- toYaml .Values.initVolumeMounts | nindent 12 }}
+            {{- toYaml .Values.initTransferVolumeMounts | nindent 12 }}
         - name: fence-init  
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
