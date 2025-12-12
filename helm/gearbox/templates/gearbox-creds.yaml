@@ -23,6 +23,10 @@ stringData:
     USER_API={{ .Values.gearboxG3auto.userApi }}
     FORCE_ISSUER={{ .Values.gearboxG3auto.forceIssuer }}
     GEARBOX_MIDDLEWARE_PUBLIC_KEY_PATH={{ .Values.gearboxG3auto.gearboxMiddlewarePublicKeyPath }}
+    {{ if and .Values.gearboxG3auto.s3ProdBucketName .Values.gearboxG3auto.prodPromotionRoleArn }}
+    S3_PROD_BUCKET_NAME={{ .Values.gearboxG3auto.s3ProdBucketName }}
+    PROD_PROMOTION_ROLE_ARN={{ .Values.gearboxG3auto.prodPromotionRoleArn }}
+    {{ end }}
 data:
   {{- if and .Values.gearboxG3auto.awsaccesskey .Values.gearboxG3auto.awssecretkey }}
   aws_access_key_id: {{ .Values.gearboxG3auto.awsaccesskey | b64enc | quote }}
