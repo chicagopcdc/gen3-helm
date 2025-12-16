@@ -1,18 +1,16 @@
 # Global configuration
 global:
-  dev: false
   portal_app: gitops
   authz_entity_name: "subject"
-  hostname: "gearbox-ped-gearbox-p1.apps.bsd-openshift-prod.bsd.uchicago.edu"
-  # -- (bool) If the service will be deployed with a Pod Disruption Budget. Note- you need to have more than 2 replicas for the pdb to be deployed.
-  pdb: true
-  # -- (int) The minimum amount of pods that are available at all times if the PDB is deployed.
-  minAvialable: 2
-  #  -- (map) This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
-  autoscaling:
-    enabled: true
-    minReplicas: 2
 
+  # -- (map) Pod security context settings
+  compatibility:
+    # -- (map) OpenShift Settings
+    openshift:
+      # -- (bool) Set to force if deploying to OpenShift
+      adaptSecurityContext: force
+ 
+  
 arborist:
   enabled: false
   # -- (map) Resource requests and limits for the containers in the pod
@@ -51,7 +49,21 @@ arborist:
     fsGroup: 1000970000
 
 fence:
-  enabled: false
+  #local Dev Only
+  # postgres:
+  #   password: "fence_thisisaweakpassword"
+  FENCE_CONFIG:
+    DEBUG: true
+    MOCK_STORAGE: true
+    #fill in
+    AMANUENSIS_PUBLIC_KEY_PATH: "/fence/keys/key/jwt_public_key.pem"
+    MOCK_GOOGLE_AUTH: true
+    mock_default_user: "test@example.com"
+    ENABLE_VISA_UPDATE_CRON: false
+    ENABLE_DELETE_EXPIRED_CLIENTS: false
+    ENABLE_FENCE_DEPLOYMENT: true
+    ENABLE_PRESIGNED_URL_FENCE: false
+    USER_YAML_ENABLED: false
   volumes:
     - name: old-config-volume
       secret:
@@ -99,10 +111,6 @@ fence:
         items:
           - key: nginx.conf
             path: nginx.conf
-    - name: openshift-fence-override-files
-      configMap:
-        name: openshift-fence-override-files
-        defaultMode: 0755
 
   volumeMounts:
     - name: "old-config-volume"
@@ -149,6 +157,10 @@ fence:
       readOnly: true
       mountPath: "/fence/keys/key/jwt_private_key.pem"
       subPath: "jwt_private_key.pem"
+    - name: "fence-jwt-keys"
+      readOnly: true
+      mountPath: "/fence/keys/key/jwt_public_key.pem"
+      subPath: "jwt_public_key.pem"
     - name: "config-volume-public"
       readOnly: true
       mountPath: "/var/www/fence/fence-config-public.yaml"
@@ -156,14 +168,6 @@ fence:
     - name: nginx-config
       mountPath: /etc/nginx/nginx.conf
       subPath: nginx.conf
-      readOnly: true
-    - name: openshift-fence-override-files
-      mountPath: /fence/dockerrun.bash
-      subPath: dockerrun.bash
-      readOnly: true
-    - name: openshift-fence-override-files
-      mountPath: /fence/deployment/wsgi/gunicorn.conf.py
-      subPath: gunicorn.conf.py
       readOnly: true
 
     # -- (list) Volumes to mount to the init container.
@@ -196,8 +200,11 @@ fence:
     # -- (int) The port number that the service exposes.
     port: 80
     targetPort: 8080
-
   podSecurityContext:
+    runAsNonRoot: true
+    # runAsUser: 1000970000
+    # runAsGroup: 1000970000
+    # fsGroup: 1000970000
     supplementalGroups:
       - 1000
   # -- (map) Resource requests and limits for the containers in the pod
@@ -225,76 +232,226 @@ fence:
     authz:
 
       resources:
+        - name: 'gearbox_gateway'
+        - name: 'data_file'
+          description: 'data files, stored in S3'
+        - name: 'sower'
+          description: 'sower resource'
+        - name: workspace
+          description: jupyter notebooks
+        - name: analysis
+          description: analysis tool service
         - name: portal
           description: data portal service
+        - name: privacy
+          description: User privacy policy
         - name: 'services'
           subresources:
-          - name: 'gearbox'
+          - name: 'sheepdog'
             subresources:
-            - name: 'data-admin'
-            - name: 'data-manager'
+            - name: 'submission'
+              subresources:
+              - name: 'program'
+              - name: 'project'
+          - name: 'amanuensis'
           - name: 'fence'
             subresources:
               - name: 'admin'
+        - name: programs
+          subresources:
+          - name: pcdc
 
       policies:
-        - id: base_access
-          resource_paths: ['/portal']
-          role_ids: ['base_access']
-        - id: 'services.gearbox-data-manager'
-          description: 'admin access to most gearbox data endpoints'
+        - id: gearbox_admin
+          resource_paths: ['/gearbox_gateway']
+          role_ids: ['gearbox_user']
+        - id: 'data_upload'
+          description: 'upload raw data files to S3'
           resource_paths: 
-          - /services/gearbox/data-manager
+          - /data_file
           role_ids: 
-          - 'data_manager'
-        - id: 'services.gearbox-data-admin'
-          description: 'admin access to gearbox data'
+          - file_uploader
+        - id: 'services.amanuensis-admin'
+          description: 'admin access to amanuensis'
           role_ids:
-            - 'data_admin'
+            - 'amanuensis_admin'
           resource_paths:
-            - '/services/gearbox/data-admin'
+            - '/services/amanuensis'
         - id: 'services.fence-admin'
           description: 'admin access to fence'
           role_ids:
             - 'fence_admin'
           resource_paths:
             - '/services/fence/admin'   
+        - id: workspace
+          description: be able to use workspace
+          resource_paths: 
+          - /workspace
+          role_ids: 
+          - workspace_user
+        - id: analysis
+          description: be able to use analysis tool service
+          resource_paths: 
+          - /analysis
+          role_ids: 
+          - analysis_user
+        - id: privacy_policy
+          description:  User agreed on the privacy policy
+          resource_paths:
+            - /privacy
+          role_ids:
+            - reader
+        - id: indexd_admin
+          description: full access to indexd API
+          role_ids:
+            - indexd_admin
+          resource_paths:
+            - /programs
+        - description: be able to use sower job
+          id: sower
+          resource_paths: [/sower]
+          role_ids: [sower_user]
+        - id: 'services.sheepdog-admin'
+          description: 'CRUD access to programs and projects'
+          role_ids:
+            - 'sheepdog_admin'
+          resource_paths:
+            - '/services/sheepdog/submission/program'
+            - '/services/sheepdog/submission/project'
+        - id: all_programs_reader
+          role_ids:
+          - reader
+          - storage_reader
+          resource_paths:
+          - /programs
+        - id: login_no_access
+          role_ids:
+          - reader
+          resource_paths:
+          - /portal
+        - id: 'data_admin'
+          description: 'policy test, should write a policy per resource and assign to user in order to avoid duplicating policies'
+          role_ids:
+            - admin
+          resource_paths:
+            - /programs
+            - /programs/pcdc
+          
 
       roles:
-        - id: fence_admin
+        - id: 'gearbox_user'
           permissions:
-            - id: fence_admin_permission
+            - id: 'gearbox_access'
               action:
-                service: 'fence'
-                method: '*'
-        - id: base_access
+                  service: '*'
+                  method: '*'
+        - id: 'file_uploader'
+          description: 'can upload data files'
           permissions:
-            - id: gearbox_access
+            - id: 'file_upload'
+              action:
+                  service: 'fence'
+                  method: 'file_upload'
+        - id: 'amanuensis_admin'
+          description: 'can do admin work on project/data request'
+          permissions:
+            - id: 'amanuensis_admin_action'
+              action: 
+                  service: 'amanuensis'
+                  method: '*'
+        - id: 'fence_admin'
+          description: 'can use the admin endpoint in Fence'
+          permissions:
+            - id: 'fence_admin_permission'
+              action: 
+                  service: 'fence'
+                  method: '*'
+        - id: workspace_user
+          permissions:
+          - action: {method: access, service: jupyterhub}
+            id: workspace_access
+        - id: sower_user
+          permissions:
+          - action: {method: access, service: job}
+            id: sower_access
+        - id: analysis_user
+          permissions:
+          - action: {method: access, service: analysis}
+            id: analysis_access
+        # Sheepdog admin role
+        - id: 'sheepdog_admin'
+          description: 'sheepdog admin role for program project crud'
+          permissions:
+            - id: 'sheepdog_admin_action'
+              action:
+                service: 'sheepdog'
+                method: '*'
+        - id: indexd_admin
+          description: full access to indexd API
+          permissions:
+          - id: indexd_admin
+            action:
+              service: indexd
+              method: '*'
+        - id: admin
+          permissions:
+            - id: admin
               action:
                 service: '*'
-                method: 'read'
-        - id: data_manager
-          permissions:
-            - id: gearbox_data_manager
-              action:
-                service: 'gearbox'
                 method: '*'
-        - id: data_admin
+        - id: creator
           permissions:
-            - id: gearbox_data_admin
+            - id: creator
               action:
                 service: '*'
-                method: '*'
+                method: create
+        - id: reader
+          permissions:
+            - id: reader
+              action:
+                service: '*'
+                method: read
+        - id: updater
+          permissions:
+            - id: updater
+              action:
+                service: '*'
+                method: update
+        - id: deleter
+          permissions:
+            - id: deleter
+              action:
+                service: '*'
+                method: delete
+        - id: storage_writer
+          permissions:
+            - id: storage_creator
+              action:
+                service: '*'
+                method: write-storage
+        - id: storage_reader
+          permissions:
+            - id: storage_reader
+              action:
+                service: '*'
+                method: read-storage
+      
     users:
       ### BEGIN INTERNS SECTION ###
       ### END INTERNS SECTION ###
       pmurdoch@uchicago.edu:
         admin: true
         policies:
-          - base_access
-          - services.gearbox-data-manager
-          - services.fence-admin
-          - services.gearbox-data-admin
+          - gearbox_admin
+          - data_upload
+          - workspace
+          - services.sheepdog-admin
+          - services.amanuensis-admin
+          - data_admin
+          - analysis
+          - privacy_policy
+          - login_no_access
+          - sower
 
 portal:
   enabled: false
@@ -332,22 +489,18 @@ portal:
 
 revproxy:
   enabled: true
-  # -- (int) Number of replicas for the deployment.
-  replicaCount: 2
   nginx:
     user: "nginx"
     resolver: "dns-default.openshift-dns.svc.cluster.local"
-    pidFile: "/tmp/nginx.pid"
   service:
     # -- (string) Type of service. Valid values are "ClusterIP", "NodePort", "LoadBalancer", "ExternalName".
     type: ClusterIP
+    # -- (int) The port number that the service exposes.
+    port: 80
     targetPort: 8080
   image:
     repository: quay.io/cdis/nginx
     tag: 2025.09
-  autoscaling:
-    averageCPUValue: 300m
-    averageMemoryValue: 256Mi
   # -- (map) Resource requests and limits for the containers in the pod
   resources:
     # -- (map) The amount of resources that the container requests
@@ -362,14 +515,6 @@ revproxy:
       memory: 512Mi
       # -- (string) The maximum amount of CPU the container can use
       cpu: 500m
-
-  # OpenShift Route configuration (replaces Ingress on OpenShift)
-  openshiftRoute:
-    enabled: true
-    # Leave host empty to auto-generate, or specify your desired hostname
-    host: "gearbox-ped-gearbox-p1.apps.bsd-openshift-prod.bsd.uchicago.edu" # Auto-generates: <app>-<namespace>.apps.<cluster-domain>
-    annotations:
-      openshift.io/host.generated: "true"
 
 gearbox:
   enabled: false
@@ -501,6 +646,15 @@ gearbox-middleware:
     runAsGroup: 1000970000
     fsGroup: 1000970000
 
+postgresql:
+  image:
+    repository: bitnamilegacy/postgresql
+  primary:
+    networkPolicy:
+      enabled: false
+  readReplicas:
+    networkPolicy:
+      enabled: false
   #local Dev Only
   # auth:
   #   postgresPassword: "thisisaterriblepassword"
@@ -508,7 +662,6 @@ gearbox-middleware:
   #   persistence:
   #     enabled: true
   #     size: 1Gi
-
 ########################################################################################
 #                               DISABLED SERVICES                                      #
 ########################################################################################
