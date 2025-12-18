@@ -56,7 +56,7 @@ spec:
             {{- if $.Values.global.dev }}
             valueFrom:
               secretKeyRef:
-                name: {{ .Release.Name }}-postgresql
+                name: {{ .Values.postgres.host | default (printf "%s-postgresql" .Release.Name) }}
                 key: postgres-password
                 optional: false
             {{- else if $.Values.global.postgres.externalSecret }}
@@ -66,7 +66,7 @@ spec:
                 key: password
                 optional: false
             {{- else }}
-            value:  {{ .Values.global.postgres.master.password | quote}}
+            value: {{ .Values.global.postgres.master.password | quote }}
             {{- end }}
           - name: PGUSER
           {{- if $.Values.global.postgres.externalSecret }}
@@ -90,7 +90,7 @@ spec:
           {{- end }}
           - name: PGHOST
             {{- if $.Values.global.dev }}
-            value: "{{ .Release.Name }}-postgresql"
+            value: {{ .Values.postgres.host | default (printf "%s-postgresql" .Release.Name) }}
             {{- else if $.Values.global.postgres.externalSecret }}
             valueFrom:
               secretKeyRef:
@@ -131,7 +131,7 @@ spec:
             echo "PGHOST=$PGHOST"
             echo "PGPORT=$PGPORT"
             echo "PGUSER=$PGUSER"
-            
+
             echo "SERVICE_PGDB=$SERVICE_PGDB"
             echo "SERVICE_PGUSER=$SERVICE_PGUSER"
 
@@ -141,7 +141,6 @@ spec:
               sleep 5
             done
             >&2 echo "Postgres is up - executing command"
-
 
             if psql -lqt | cut -d \| -f 1 | grep -qw $SERVICE_PGDB; then
               gen3_log_info "Database exists"
@@ -161,20 +160,62 @@ spec:
               # Update secret to signal that db has been created, and services can start
               kubectl patch secret/{{ .Chart.Name }}-dbcreds -p '{"data":{"dbcreated":"dHJ1ZQo="}}'
             fi
-{{- end}}
+{{- end }}
 {{- end }}
 
 
-{{/* 
-Create k8s secrets for connecting to postgres 
+{{/*
+Create k8s secrets for connecting to postgres
 */}}
 # DB Secrets
 {{- define "common.db-secret" -}}
-{{- if or (not .Values.global.externalSecrets.deploy) (and .Values.global.externalSecrets.deploy .Values.global.externalSecrets.dbCreate) }}
+{{- if or (not .Values.global.externalSecrets.deploy) (and .Values.global.externalSecrets.deploy .Values.global.externalSecrets.createLocalK8sSecret) }}
 apiVersion: v1
 kind: Secret
 metadata:
   name: {{ $.Chart.Name }}-dbcreds
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+  labels:
+    app: gen3-created-by-hook
+data:
+  {{- $existingSecret := (lookup "v1" "Secret" .Release.Namespace (printf "%s-dbcreds" .Chart.Name)) }}
+  {{- if $existingSecret }}
+    database: {{ index $existingSecret.data "database" | quote }}
+    username: {{ index $existingSecret.data "username" | quote }}
+    port: {{ index $existingSecret.data "port" | quote }}
+    password: {{ index $existingSecret.data "password" | quote }}
+    host: {{ index $existingSecret.data "host" | quote }}
+    {{- if index $existingSecret.data "dbcreated" }}
+    dbcreated: {{ index $existingSecret.data "dbcreated" | quote }}
+    {{- end }}
+  {{- else }}
+    database: {{ ( $.Values.postgres.database | default (printf "%s_%s" $.Chart.Name $.Release.Name)  ) | b64enc | quote }}
+    username: {{ ( $.Values.postgres.username | default (printf "%s_%s" $.Chart.Name $.Release.Name)  ) | b64enc | quote }}
+    port: {{ $.Values.postgres.port | b64enc | quote }}
+    password: {{ include "gen3.service-postgres" (dict "key" "password" "service" $.Chart.Name "context" $) | b64enc | quote }}
+    {{- if $.Values.global.dev }}
+    host: {{ ($.Values.postgres.host | default (printf "%s-%s" $.Release.Name "postgresql") ) | b64enc | quote }}
+    {{- else }}
+    host: {{ ( $.Values.postgres.host | default ( $.Values.global.postgres.master.host)) | b64enc | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+  Bootstrap Secret for PushSecret to populate External Secret
+*/}}
+{{- define "common.secret.db.bootstrap" -}}
+{{- if and $.Values.global.externalSecrets.deploy (or $.Values.global.externalSecrets.pushSecret .Values.externalSecrets.pushSecret) }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $.Chart.Name }}-dbcreds-bootstrap
+  labels:
+    app.kubernetes.io/name: {{ $.Chart.Name }}
+type: Opaque
 data:
   database: {{ ( $.Values.postgres.database | default (printf "%s_%s" $.Chart.Name $.Release.Name)  ) | b64enc | quote}}
   username: {{ ( $.Values.postgres.username | default (printf "%s_%s" $.Chart.Name $.Release.Name)  ) | b64enc | quote}}
@@ -185,5 +226,34 @@ data:
   {{- else }}
   host: {{ ( $.Values.postgres.host | default ( $.Values.global.postgres.master.host)) | b64enc | quote }}
   {{- end }}
+  dbcreated: {{ "true" | b64enc | quote }}
 {{- end }}
+{{- end -}}
+
+
+{{- define "common.db-push-secret" -}}
+{{- if and $.Values.global.externalSecrets.deploy (or $.Values.global.externalSecrets.pushSecret .Values.externalSecrets.pushSecret) }}
+apiVersion: external-secrets.io/v1alpha1
+kind: PushSecret
+metadata:
+  name: {{ $.Chart.Name }}-dbcreds
+spec:
+  updatePolicy: IfNotExists
+  refreshInterval: 2m
+  secretStoreRefs:
+    {{- if ne .Values.global.externalSecrets.clusterSecretStoreRef "" }}
+    - name: {{ .Values.global.externalSecrets.clusterSecretStoreRef }}
+      kind: ClusterSecretStore
+    {{- else }}
+    - name: {{include "common.SecretStore" .}}
+      kind: SecretStore
+    {{- end }}
+  selector:
+    secret:
+      name: {{ $.Chart.Name }}-dbcreds-bootstrap
+  data:
+    - match:
+        remoteRef:
+          remoteKey: {{ include "common.externalSecret.dbcreds.name" . }}
 {{- end }}
+{{- end -}}

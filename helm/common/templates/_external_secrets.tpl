@@ -16,7 +16,7 @@
     ExternalSecrets Object
 */}}
 {{- define "common.externalSecret.db" -}}
-{{ if .Values.global.externalSecrets.deploy }}
+{{- if and .Values.global.externalSecrets.deploy (not .Values.global.externalSecrets.createLocalK8sSecret) }}
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
@@ -57,14 +57,14 @@ spec:
           serviceAccountRef:
             name: {{ .Values.global.aws.secretStoreServiceAccount.name }}
         {{- else }}
-        secretRef:
-          accessKeyIDSecretRef:
-            name: {{.Chart.Name}}-aws-config
-            key: access-key
-          secretAccessKeySecretRef:
-            name: {{.Chart.Name}}-aws-config
-            key: secret-access-key
-        {{- end}}
+      #   secretRef:
+      #     accessKeyIDSecretRef:
+      #       name: {{.Chart.Name}}-aws-config
+      #       key: access-key
+      #     secretAccessKeySecretRef:
+      #       name: {{.Chart.Name}}-aws-config
+      #       key: secret-access-key
+      #   {{- end}}
 {{- end }}
 
 

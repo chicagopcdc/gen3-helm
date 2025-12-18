@@ -2,7 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-
 # Global configuration
 global:
   # -- (map) AWS configuration
@@ -13,6 +12,11 @@ global:
     awsAccessKeyId:
     # -- (string) Credentials for AWS stuff.
     awsSecretAccessKey:
+    externalSecrets:
+      # -- (bool) Whether to use External Secrets for aws config.
+      enabled: false
+      # -- (String) Name of Secrets Manager secret.
+      externalSecretAwsCreds:
   # -- (bool) Whether the deployment is for development purposes.
   dev: true
 
@@ -48,30 +52,39 @@ global:
   # -- (bool) Whether public datasets are enabled.
   publicDataSets: true
   # -- (string) Access level for tiers.
-  tierAccessLevel: libre
+  tierAccessLevel: private
   # -- (int) Only relevant if tireAccessLevel is set to "regular". Summary charts below this limit will not appear for aggregated data.
   tierAccessLimit: "1000"
-  # -- (bool) Whether network policies are enabled.
-  netPolicy: true
+  # -- (map) Controls network policy settings
+  netPolicy:
+    enabled: false
   # -- (int) Number of dispatcher jobs.
   dispatcherJobNum: "10"
-  # -- (bool) Whether Datadog is enabled.
-  ddEnabled: false
   # -- (bool) If the service will be deployed with a Pod Disruption Budget. Note- you need to have more than 2 replicas for the pdb to be deployed.
   pdb: false
   # -- (int) The minimum amount of pods that are available at all times if the PDB is deployed.
-  minAvialable: 1
+  minAvailable: 1
+  #  -- (map) This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 10
+    averageCPUValue: 500m
+    averageMemoryValue: 500Mi
+  # -- (map) Karpenter topology spread configuration.
+  topologySpread:
+    # -- (bool) Whether to enable topology spread constraints for all subcharts that support it.
+    enabled: false
+    # -- (string) The topology key to use for spreading. Defaults to "topology.kubernetes.io/zone".
+    topologyKey: "topology.kubernetes.io/zone"
+    # -- (int) The maxSkew to use for topology spread constraints. Defaults to 1.
+    maxSkew: 1
 
-# -- (map) Configuration for autoscaling the number of replicas
-autoscaling:
-  # -- (bool) Whether autoscaling is enabled
-  enabled: false
-  # -- (int) The minimum number of replicas to scale down to
-  minReplicas: 1
-  # -- (int) The maximum number of replicas to scale up to
-  maxReplicas: 100
-  # -- (int) The target CPU utilization percentage for autoscaling
-  targetCPUUtilizationPercentage: 80
+#  -- (map) This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+autoscaling: {}
+
+# -- (bool) Whether Metrics are enabled.
+metricsEnabled:
 
 # -- (map) Secret information to access the db restore job S3 bucket.
 secrets:
@@ -105,20 +118,20 @@ affinity:
   podAntiAffinity:
     # -- (map) Option for scheduling to be required or preferred.
     preferredDuringSchedulingIgnoredDuringExecution:
-    # -- (int) Weight value for preferred scheduling.
-    - weight: 100
-      podAffinityTerm:
-        labelSelector:
-          matchExpressions:
-          # -- (list) Label key for match expression.
-          - key: app
-            # -- (string) Operation type for the match expression.
-            operator: In
-            # -- (list) Value for the match expression key.
-            values:
-            - guppy
-        # -- (string) Value for topology key label.
-        topologyKey: "kubernetes.io/hostname"
+      # -- (int) Weight value for preferred scheduling.
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              # -- (list) Label key for match expression.
+              - key: app
+                # -- (string) Operation type for the match expression.
+                operator: In
+                # -- (list) Value for the match expression key.
+                values:
+                  - guppy
+          # -- (string) Value for topology key label.
+          topologyKey: "kubernetes.io/hostname"
 
 # -- (list) Volumes to attach to the pod.
 volumes:
@@ -128,6 +141,12 @@ volumes:
       items:
         - key: guppy_config.json
           path: guppy_config.json
+  - name: pcdcanalysistools-jwt-keys
+    secret:
+      secretName: "pcdcanalysistools-jwt-keys"
+      items:
+        - key: jwt_public_key.pem
+          path: jwt_public_key.pem
 
 # -- (bool) Automount the default service account token
 automountServiceAccountToken: false
@@ -141,7 +160,6 @@ image:
   # -- (string) Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-
 # Environment Variables
 # -- (string) Elasticsearch endpoint.
 esEndpoint: "gen3-elasticsearch-master:9200"
@@ -154,22 +172,21 @@ volumeMounts:
     readOnly: true
     mountPath: /guppy/guppy_config.json
     subPath: guppy_config.json
+  - name: "pcdcanalysistools-jwt-keys"
+    readOnly: true
+    mountPath: "/guppy/jwt_public_key.pem"
+    subPath: "jwt_public_key.pem"
 
 # -- (map) Resource requests and limits for the containers in the pod
 resources:
   # -- (map) The amount of resources that the container requests
   requests:
-    # -- (string) The amount of CPU requested
-    cpu: 0.1
     # -- (string) The amount of memory requested
     memory: 500Mi
   # -- (map) The maximum amount of resources that the container is allowed to use
   limits:
-    # -- (string) The maximum amount of CPU the container can use
-    cpu: 1
     # -- (string) The maximum amount of memory the container can use
     memory: 2Gi
-
 
 # -- (map) Kubernetes service information.
 service:
@@ -185,12 +202,12 @@ service:
 # Configmap
 # -- (list) Elasticsearch index configurations
 indices:
-- index: dev_case
-  type: case
-- index: dev_file
-  type: file
+  - index: dev_case
+    type: case
+  - index: dev_file
+    type: file
 # -- (string) The Elasticsearch configuration index
-configIndex: dev_case-array-config
+configIndex: dev_array-config
 # -- (string) The field used for access control and authorization filters
 authFilterField: auth_resource_path
 # -- (bool) Whether or not to enable encryption for specified fields
@@ -212,11 +229,3 @@ partOf: "Explorer-Tab"
 selectorLabels:
 # -- (map) Will completely override the commonLabels defined in the common chart's _label_setup.tpl
 commonLabels:
-
-# Values to configure datadog if ddEnabled is set to "true".
-# -- (bool) If enabled, the Datadog Agent will automatically inject Datadog-specific metadata into your application logs.
-datadogLogsInjection: true
-# -- (bool) If enabled, the Datadog Agent will collect profiling data for your application using the Continuous Profiler. This data can be used to identify performance bottlenecks and optimize your application.
-datadogProfilingEnabled: true
-# -- (int) A value between 0 and 1, that represents the percentage of requests that will be traced. For example, a value of 0.5 means that 50% of requests will be traced.
-datadogTraceSampleRate: 1
