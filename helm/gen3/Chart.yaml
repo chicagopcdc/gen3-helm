@@ -56,7 +56,7 @@ dependencies:
     repository: "file://../frontend-framework"
     condition: frontend-framework.enabled
   - name: fence
-    version: 0.1.66
+    version: 0.1.67
     repository: "file://../fence"
     condition: fence.enabled
   - name: gen3-user-data-library
@@ -68,7 +68,7 @@ dependencies:
     repository: "file://../gen3-workflow"
     condition: gen3-workflow.enabled
   - name: guppy
-    version: 0.1.30
+    version: 0.1.31
     repository: "file://../guppy"
     condition: guppy.enabled
   - name: hatchery
@@ -88,7 +88,7 @@ dependencies:
     repository: "file://../metadata"
     condition: metadata.enabled
   - name: peregrine
-    version: 0.1.36
+    version: 0.1.37
     repository: "file://../peregrine"
     condition: peregrine.enabled
   - name: portal
@@ -116,23 +116,23 @@ dependencies:
     condition: sower.enabled
     repository: "file://../sower"
   - name: wts
-    version: 0.1.34
+    version: 0.1.35
     repository: "file://../wts"
     condition: wts.enabled
   - name: pcdcanalysistools
-    version: "1.0.0"
+    version: 1.0.1
     repository: "file://../pcdcanalysistools"
     condition: pcdcanalysistools.enabled
   - name: amanuensis
-    version: "1.0.0"
+    version: 1.0.1
     repository: "file://../amanuensis"
     condition: amanuensis.enabled
   - name: gearbox
-    version: "0.1.0"
+    version: 0.1.1
     repository: "file://../gearbox"
     condition: gearbox.enabled
   - name: gearbox-middleware
-    version: "0.1.0"
+    version: 0.1.1
     repository: "file://../gearbox-middleware"
     condition: gearbox-middleware.enabled
   - name: gen3-network-policies
@@ -188,7 +188,7 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 0.2.109
+version: 0.2.110
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

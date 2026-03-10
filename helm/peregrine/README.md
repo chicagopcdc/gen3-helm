@@ -1,6 +1,6 @@
 # peregrine
 
-![Version: 0.1.36](https://img.shields.io/badge/Version-0.1.36-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: master](https://img.shields.io/badge/AppVersion-master-informational?style=flat-square)
+![Version: 0.1.37](https://img.shields.io/badge/Version-0.1.37-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: master](https://img.shields.io/badge/AppVersion-master-informational?style=flat-square)
 
 A Helm chart for gen3 Peregrine service
 
@@ -105,5 +105,5 @@ A Helm chart for gen3 Peregrine service
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
 | serviceAccount.name | string | `""` | The name of the service account |
 | tolerations | list | `[]` | Tolerations for the pods |
-| volumeMounts | list | `[{"mountPath":"/var/www/peregrine/settings.py","name":"config-volume","readOnly":true,"subPath":"settings.py"},{"mountPath":"peregrine/bin/settings.py","name":"config-volume","readOnly":true,"subPath":"settings.py"}]` | Volumes to mount to the container. |
+| volumeMounts | list | `[{"mountPath":"/var/www/peregrine/settings.py","name":"config-volume","readOnly":true,"subPath":"settings.py"},{"mountPath":"peregrine/bin/settings.py","name":"config-volume","readOnly":true,"subPath":"settings.py"},{"mountPath":"peregrine/bin/confighelper.py","name":"config-volume","readOnly":true,"subPath":"config_helper.py"}]` | Volumes to mount to the container. |
 | volumes | list | `[{"emptyDir":{},"name":"shared-data"},{"name":"config-volume","secret":{"secretName":"peregrine-secret"}}]` | Volumes to attach to the container. |

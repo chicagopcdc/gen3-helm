@@ -1,36 +1,35 @@
-# wts
+# pcdcanalysistools
 
-![Version: 0.1.35](https://img.shields.io/badge/Version-0.1.35-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: master](https://img.shields.io/badge/AppVersion-master-informational?style=flat-square)
+![Version: 1.0.1](https://img.shields.io/badge/Version-1.0.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: master](https://img.shields.io/badge/AppVersion-master-informational?style=flat-square)
 
-A Helm chart for gen3 workspace token service
+A Helm chart for gen3 pcdcanalysistools Service
 
 ## Requirements
 
 | Repository | Name | Version |
 |------------|------|---------|
 | file://../common | common | 0.1.28 |
-| https://charts.bitnami.com/bitnami | postgresql | 11.9.13 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| affinity | map | `{}` | Affinity to use for the deployment. |
+| affinity | map | `{"podAntiAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"podAffinityTerm":{"labelSelector":{"matchExpressions":[{"key":"app","operator":"In","values":["pcdcanalysistools"]}]},"topologyKey":"kubernetes.io/hostname"},"weight":100}]}}` | Affinity to use for the deployment. |
+| affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution | map | `[{"podAffinityTerm":{"labelSelector":{"matchExpressions":[{"key":"app","operator":"In","values":["pcdcanalysistools"]}]},"topologyKey":"kubernetes.io/hostname"},"weight":100}]` | Option for scheduling to be required or preferred. |
+| affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0] | int | `{"podAffinityTerm":{"labelSelector":{"matchExpressions":[{"key":"app","operator":"In","values":["pcdcanalysistools"]}]},"topologyKey":"kubernetes.io/hostname"},"weight":100}` | Weight value for preferred scheduling. |
+| affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0] | list | `{"key":"app","operator":"In","values":["pcdcanalysistools"]}` | Label key for match expression. |
+| affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].operator | string | `"In"` | Operation type for the match expression. |
+| affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].values | list | `["pcdcanalysistools"]` | Value for the match expression key. |
+| affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.topologyKey | string | `"kubernetes.io/hostname"` | Value for topology key label. |
+| authNamespace | string | `""` |  |
+| automountServiceAccountToken | bool | `false` | Automount the default service account token |
 | autoscaling | object | `{}` |  |
 | commonLabels | map | `nil` | Will completely override the commonLabels defined in the common chart's _label_setup.tpl |
 | criticalService | string | `"true"` | Valid options are "true" or "false". If invalid option is set- the value will default to "false". |
-| externalSecrets | map | `{"createK8sWtsSecret":false,"createWtsOidcClientSecret":true,"dbcreds":null,"pushSecret":false,"wtsG3auto":null,"wtsOidcClient":null}` | External Secrets settings. |
-| externalSecrets.createK8sWtsSecret | bool | `false` | Will create the WTS secret or pull it from AWS Secrets Manager. Default is false. |
-| externalSecrets.createWtsOidcClientSecret | bool | `true` | Will create the WTS secret or pull it from AWS Secrets Manager. Default is true. |
+| dataDog | bool | `{"enabled":false,"env":"dev"}` | Whether Datadog is enabled. |
+| externalSecrets | map | `{"dbcreds":null,"pushSecret":false}` | External Secrets settings. |
 | externalSecrets.dbcreds | string | `nil` | Will override the name of the aws secrets manager secret. Default is "Values.global.environment-.Chart.Name-creds" |
 | externalSecrets.pushSecret | bool | `false` | Whether to create the database and Secrets Manager secrets via PushSecret. |
-| externalSecrets.wtsG3auto | string | `nil` | Will override the name of the aws secrets manager secret. Default is "wts-g3auto". |
-| externalSecrets.wtsOidcClient | string | `nil` | Will override the name of the aws secrets manager secret. Default is "wts-oidc-client". |
-| fenceImage | map | `{"pullPolicy":"Always","repository":"quay.io/pcdc/fence","tag":"master"}` | Fence docker image information. |
-| fenceImage.pullPolicy | string | `"Always"` | Docker pull policy. |
-| fenceImage.repository | string | `"quay.io/pcdc/fence"` | Docker repository. |
-| fenceImage.tag | string | `"master"` | Overrides the image tag whose default is the chart appVersion. |
-| fullnameOverride | string | `""` | Override the full name of the deployment. |
 | global.autoscaling.averageCPUValue | string | `"500m"` |  |
 | global.autoscaling.averageMemoryValue | string | `"500Mi"` |  |
 | global.autoscaling.enabled | bool | `false` |  |
@@ -47,7 +46,7 @@ A Helm chart for gen3 workspace token service
 | global.dispatcherJobNum | int | `"10"` | Number of dispatcher jobs. |
 | global.environment | string | `"default"` | Environment name. This should be the same as vpcname if you're doing an AWS deployment. Currently this is being used to share ALB's if you have multiple namespaces. Might be used other places too. |
 | global.externalSecrets | map | `{"deploy":false,"separateSecretStore":false}` | External Secrets settings. |
-| global.externalSecrets.deploy | bool | `false` | Will use ExternalSecret resources to pull secrets from Secrets Manager instead of creating them locally. Be cautious as this will override any wts secrets you have deployed. |
+| global.externalSecrets.deploy | bool | `false` | Will use ExternalSecret resources to pull secrets from Secrets Manager instead of creating them locally. Be cautious as this will override any pcdcanalysistools secrets you have deployed. |
 | global.externalSecrets.separateSecretStore | string | `false` | Will deploy a separate External Secret Store for this service. |
 | global.hostname | string | `"localhost"` | Hostname for the deployment. |
 | global.kubeBucket | string | `"kube-gen3"` | S3 bucket name for Kubernetes manifest files. |
@@ -70,49 +69,43 @@ A Helm chart for gen3 workspace token service
 | global.topologySpread.enabled | bool | `false` | Whether to enable topology spread constraints for all subcharts that support it. |
 | global.topologySpread.maxSkew | int | `1` | The maxSkew to use for topology spread constraints. Defaults to 1. |
 | global.topologySpread.topologyKey | string | `"topology.kubernetes.io/zone"` | The topology key to use for spreading. Defaults to "topology.kubernetes.io/zone". |
-| hostname | string | `nil` | Hostname for the deployment. |
-| image | map | `{"pullPolicy":"Always","repository":"quay.io/cdis/workspace-token-service","tag":"master","utilImage":"quay.io/cdis/utilities:master"}` | Docker image information. |
-| image.pullPolicy | string | `"Always"` | Docker pull policy. |
-| image.repository | string | `"quay.io/cdis/workspace-token-service"` | Docker repository. |
-| image.tag | string | `"master"` | Overrides the image tag whose default is the chart appVersion. |
-| imagePullSecrets | list | `[]` | Docker image pull secrets. |
+| image | map | `{"pullPolicy":"IfNotPresent","repository":"quay.io/pcdc/pcdcanalysistools","tag":"1.8.4"}` | Docker image information. |
+| image.pullPolicy | string | `"IfNotPresent"` | Docker pull policy. |
+| image.repository | string | `"quay.io/pcdc/pcdcanalysistools"` | Docker repository. |
+| image.tag | string | `"1.8.4"` | Overrides the image tag whose default is the chart appVersion. |
 | metricsEnabled | bool | `nil` | Whether Metrics are enabled. |
-| nameOverride | string | `""` | Override the name of the chart. |
-| nodeSelector | map | `{}` | Node Selector for the pods |
-| oidc_client_id | string | `nil` | Id for the OIDC client. |
-| oidc_client_secret | string | `nil` | Secret for the OIDC client. |
-| oidc_job_enabled | bool | `true` | Whether to enable OIDC job. You can disable after inital run to ensure oidc clients are created. |
-| partOf | string | `"Authentication"` | Label to help organize pods and their use. Any value is valid, but use "_" or "-" to divide words. |
-| podAnnotations | map | `{}` | Annotations to add to the pod. |
-| podSecurityContext | map | `{}` | Security context for the pod |
+| partOf | string | `"Core-Service"` | Label to help organize pods and their use. Any value is valid, but use "_" or "-" to divide words. |
+| podAnnotations | map | `{"gen3.io/network-ingress":"pcdcanalysistools"}` | Annotations to add to the pod |
 | postgres | map | `{"database":null,"dbCreate":null,"dbRestore":false,"host":null,"password":null,"port":"5432","separate":false,"username":null}` | Postgres database configuration. If db does not exist in postgres cluster and dbCreate is set ot true then these databases will be created for you |
 | postgres.database | string | `nil` | Database name for postgres. This is a service override, defaults to <serviceName>-<releaseName> |
 | postgres.dbCreate | bool | `nil` | Whether the database should be created. Default to global.postgres.dbCreate |
+| postgres.dbRestore | bool | `false` | Whether the database should be restored from s3. Default to global.postgres.dbRestore |
 | postgres.host | string | `nil` | Hostname for postgres server. This is a service override, defaults to global.postgres.host |
 | postgres.password | string | `nil` | Password for Postgres. Will be autogenerated if left empty. |
 | postgres.port | string | `"5432"` | Port for Postgres. |
 | postgres.separate | string | `false` | Will create a Database for the individual service to help with developing it. |
 | postgres.username | string | `nil` | Username for postgres. This is a service override, defaults to <serviceName>-<releaseName> |
 | postgresql | map | `{"primary":{"persistence":{"enabled":false}}}` | Postgresql subchart settings if deployed separately option is set to "true". Disable persistence by default so we can spin up and down ephemeral environments |
+| postgresql.primary.persistence.enabled | bool | `false` | Option to persist the dbs data. |
 | release | string | `"production"` | Valid options are "production" or "dev". If invalid option is set- the value will default to "dev". |
+| releaseLabel | string | `"production"` |  |
 | replicaCount | int | `1` | Number of replicas for the deployment. |
-| resources | map | `{"limits":{"memory":"512Mi"},"requests":{"memory":"120Mi"}}` | Resource requests and limits for the containers in the pod |
+| resources | map | `{"limits":{"memory":"512Mi"},"requests":{"memory":"12Mi"}}` | Resource requests and limits for the containers in the pod |
 | resources.limits | map | `{"memory":"512Mi"}` | The maximum amount of resources that the container is allowed to use |
 | resources.limits.memory | string | `"512Mi"` | The maximum amount of memory the container can use |
-| resources.requests | map | `{"memory":"120Mi"}` | The amount of resources that the container requests |
-| resources.requests.memory | string | `"120Mi"` | The amount of memory requested |
-| roleName | string | `"workspace-token-service"` | Name of the role to be used for the role binding. |
-| secrets | map | `{"awsAccessKeyId":null,"awsSecretAccessKey":null,"external_oidc":null}` | Values for wts secret and keys for External Secrets. |
-| secrets.awsAccessKeyId | str | `nil` | AWS access key ID. Overrides global key. |
-| secrets.awsSecretAccessKey | str | `nil` | AWS secret access key ID. Overrides global key. |
-| securityContext | map | `{}` | Security context for the containers in the pod |
+| resources.requests | map | `{"memory":"12Mi"}` | The amount of resources that the container requests |
+| resources.requests.memory | string | `"12Mi"` | The amount of memory requested |
+| revisionHistoryLimit | int | `2` | Number of old revisions to retain |
+| secrets | map | `{"awsAccessKeyId":null,"awsSecretAccessKey":null}` | Values for pcdcanalysistools secret. |
+| secrets.awsAccessKeyId | str | `nil` | AWS access key ID to access the db restore job S3 bucket. Overrides global key. |
+| secrets.awsSecretAccessKey | str | `nil` | AWS secret access key ID to access the db restore job S3 bucket. Overrides global key. |
 | selectorLabels | map | `nil` | Will completely override the selectorLabels defined in the common chart's _label_setup.tpl |
-| service | map | `{"httpPort":80,"httpsPort":443,"type":"ClusterIP"}` | Configuration for the service |
-| service.httpPort | int | `80` | Port on which the service is exposed |
-| service.httpsPort | int | `443` | Secure port on which the service is exposed |
+| service | map | `{"port":80,"type":"ClusterIP"}` | Kubernetes service information. |
+| service.port | int | `80` | The port number that the service exposes. |
 | service.type | string | `"ClusterIP"` | Type of service. Valid values are "ClusterIP", "NodePort", "LoadBalancer", "ExternalName". |
-| serviceAccount | map | `{"annotations":{},"create":true,"name":""}` | Service account to use or create. |
-| serviceAccount.annotations | map | `{}` | Annotations to add to the service account. |
-| serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
-| serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
-| tolerations | list | `[]` | Tolerations for the pods |
+| strategy | map | `{"rollingUpdate":{"maxSurge":1,"maxUnavailable":0},"type":"RollingUpdate"}` | Rolling update deployment strategy |
+| strategy.rollingUpdate.maxSurge | int | `1` | Number of additional replicas to add during rollout. |
+| strategy.rollingUpdate.maxUnavailable | int | `0` | Maximum amount of pods that can be unavailable during the update. |
+| terminationGracePeriodSeconds | int | `50` | pcdcanalysistools transactions take forever - try to let the complete before termination |
+| volumeMounts | list | `[{"mountPath":"/var/www/PcdcAnalysisTools/wsgi.py","name":"config-volume","readOnly":true,"subPath":"settings.py"},{"mountPath":"PcdcAnalysisTools/bin/settings.py","name":"config-volume","readOnly":true,"subPath":"settings.py"},{"mountPath":"PcdcAnalysisTools/bin/confighelper.py","name":"config-volume","readOnly":true,"subPath":"confighelper.py"},{"mountPath":"/var/www/PcdcAnalysisTools/jwt_private_key.pem","name":"pcdcanalysistools-jwt-keys","readOnly":true,"subPath":"jwt_private_key.pem"}]` | Volumes to mount to the container. |
+| volumes | list | `[{"name":"config-volume","secret":{"secretName":"pcdcanalysistools-secret"}},{"name":"pcdcanalysistools-jwt-keys","secret":{"items":[{"key":"jwt_private_key.pem","path":"jwt_private_key.pem"}],"secretName":"pcdcanalysistools-jwt-keys"}}]` | of files to become volumes in the container |
