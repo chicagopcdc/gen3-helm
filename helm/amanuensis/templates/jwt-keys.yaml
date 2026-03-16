@@ -1,5 +1,7 @@
+{{- if or (not .Values.global.externalSecrets.deploy) (and .Values.global.externalSecrets.deploy .Values.externalSecrets.createK8sJwtKeysSecret) }}
 {{include "common.jwt-key-pair-secret" .}}
 ---
 {{include "common.jwt_public_key_setup_sa" .}}
 ---
 {{include "common.create_public_key_job" .}}
+{{ end }}
