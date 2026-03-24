@@ -4,6 +4,12 @@
 
 # Global configuration
 global:
+  # -- (map) GCP configuration
+  gcp:
+    enabled: false
+    secretStoreServiceAccount: "GCP_SA@PROJECT_ID.iam.gserviceaccount.com"
+    projectID: "project-name"
+
   # -- (map) AWS configuration
   aws:
     # -- (string) AWS region for this deployment
@@ -91,7 +97,7 @@ global:
   workspaceTimeoutInMinutes: 480
   maintenanceMode: "off"
   dataUploadBucket:
-  # fenceURL:
+  # fenceURL: "http://fence-service"
   # arboristURL:
   # indexdURL:
   # workspaceURL:
@@ -106,9 +112,8 @@ global:
   netPolicy:
     # -- (bool) Whether network policies are enabled
     enabled: false
-
     # -- (array) A CIDR range representing a database subnet, that services with a database need access to
-    dbSubnet: ""
+    dbSubnets: ""
   # -- (int) Number of dispatcher jobs.
   dispatcherJobNum: "10"
   # -- (bool) If the service will be deployed with a Pod Disruption Budget. Note- you need to have more than 2 replicas for the pdb to be deployed.
@@ -175,6 +180,10 @@ datareplicate:
   # -- (bool) Whether to deploy the datareplicate subchart.
   enabled: false
 
+embedding-management-service:
+  enabled: false
+
+
 etl:
   # -- (bool) Whether to deploy the etl subchart.
   enabled: true
@@ -234,6 +243,9 @@ gen3-analysis:
   # -- (bool) Whether to deploy the gen3-analysis subchart.
   enabled: false
 
+data-upload-cron:
+  enabled: false
+
 # -- (map) Configurations for gen3-user-data-library chart.
 gen3-user-data-library:
   # -- (bool) Whether to deploy the gen3-user-data-library subchart.
@@ -280,17 +292,11 @@ hatchery:
         - "/bin/sh"
         - root
     containers:
-      # -- (int) port to proxy traffic to in docker contaniner
       - target-port: 8888
-        # -- (string) cpu limit of workspace container
-        cpu-limit: "1.0"
-        # -- (string) memory limit of workspace container
-        memory-limit: 2Gi
-        # -- (string) name of workspace
+        cpu-limit: "2"
+        memory-limit: 3Gi
         name: "(Tutorials) Example Analysis Jupyter Lab Notebooks"
-        # -- (string) docker image for workspace
-        image: quay.io/cdis/heal-notebooks:combined_tutorials__latest
-        # -- environment variables for workspace container
+        image: quay.io/cdis/jupyter-superslim:2.1.0
         env:
           FRAME_ANCESTORS: https://{{ .Values.global.hostname }}
         args:
@@ -310,7 +316,7 @@ hatchery:
           - "-c"
           - export IAM=`whoami`; rm -rf /home/$IAM/pd/dockerHome; rm -rf /home/$IAM/pd/lost+found;
             ln -s /data /home/$IAM/pd/; true
-        user-uid: 1000
+        user-uid: 1010
         fs-gid: 100
         user-volume-location: "/home/jovyan/pd"
         gen3-volume-location: "/home/jovyan/.gen3"
@@ -332,6 +338,14 @@ manifestservice:
 metadata:
   # -- (bool) Whether to deploy the metadata subchart.
   enabled: true
+
+ohdsi-atlas:
+  # -- (bool) Whether to deploy the ohdsi-atlas subchart.
+  enabled: false
+
+ohdsi-webapi:
+  # -- (bool) Whether to deploy the ohdsi-webapi subchart.
+  enabled: false
 
 orthanc:
   # -- (bool) Whether to deploy the orthanc subchart.
@@ -404,6 +418,7 @@ access-backend:
 postgresql:
   image:
     repository: bitnamilegacy/postgresql
+    tag: 16.6.0-debian-12-r2
   primary:
     persistence:
       # -- (bool) Option to persist the dbs data.

@@ -1,3 +1,4 @@
+.vscode/*
 # --- Folders ---
 **/charts/
 notes/
@@ -21,3 +22,9 @@ temp.yaml
 /values.yaml                               
 postgres.txt
 pcdc_data/external/external_reference.json  # External reference data file for PCDC
+
+
+# exception: do not ignore the `helm/funnel/charts/funnel*` file
+!helm/funnel/charts
+helm/funnel/charts/common*
+*copy.yaml
