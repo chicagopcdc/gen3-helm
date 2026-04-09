@@ -239,14 +239,10 @@ tolerations: []
 
 # -- (map) Labels to add to the pod.
 labels:
-  # -- (string) Grants egress from all pods to pods labeled with authrpovider=yes. For network policy selectors.
-  authprovider: "yes"
-  # -- (string) Grants egress from pods labeled with netnolimit=yes to any IP address. Use explicit proxy and AWS APIs
-  netnolimit: "yes"
   # -- (string) Grants ingress from the revproxy service for pods labeled with public=yes
   public: "yes"
-  # -- (string) Grants ingress from pods in usercode namespaces for gen3 pods labeled with userhelper=yes
-  userhelper: "yes"
+  # -- (string) Grants access to s3 for pods labeled with s3=yes
+  s3: "yes"
 
 # -- (map) Affinity to use for the deployment.
 affinity:

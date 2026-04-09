@@ -19,7 +19,6 @@ spec:
       labels:
         public: "yes"
         s3: "yes"
-        userhelper: "yes"
         {{- include "gearbox.selectorLabels" . | nindent 8 }}
         {{- include "common.extraLabels" . | nindent 8 }}
       annotations:
