@@ -1,6 +1,6 @@
 # guppy
 
-![Version: 0.1.31](https://img.shields.io/badge/Version-0.1.31-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: master](https://img.shields.io/badge/AppVersion-master-informational?style=flat-square)
+![Version: 0.1.33](https://img.shields.io/badge/Version-0.1.33-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: master](https://img.shields.io/badge/AppVersion-master-informational?style=flat-square)
 
 A Helm chart for gen3 Guppy Service
 
@@ -8,7 +8,7 @@ A Helm chart for gen3 Guppy Service
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../common | common | 0.1.28 |
+| file://../common | common | 0.1.31 |
 
 ## Values
 
@@ -95,5 +95,5 @@ A Helm chart for gen3 Guppy Service
 | strategy | map | `{"rollingUpdate":{"maxSurge":1,"maxUnavailable":0},"type":"RollingUpdate"}` | Rolling update deployment strategy |
 | strategy.rollingUpdate.maxSurge | int | `1` | Number of additional replicas to add during rollout. |
 | strategy.rollingUpdate.maxUnavailable | int | `0` | Maximum amount of pods that can be unavailable during the update. |
-| volumeMounts | list | `[{"mountPath":"/guppy/guppy_config.json","name":"guppy-config","readOnly":true,"subPath":"guppy_config.json"},{"mountPath":"/guppy/jwt_public_key.pem","name":"pcdcanalysistools-jwt-keys","readOnly":true,"subPath":"jwt_public_key.pem"}]` | Volumes to mount to the container. |
-| volumes | list | `[{"configMap":{"items":[{"key":"guppy_config.json","path":"guppy_config.json"}],"name":"manifest-guppy"},"name":"guppy-config"},{"name":"pcdcanalysistools-jwt-keys","secret":{"items":[{"key":"jwt_public_key.pem","path":"jwt_public_key.pem"}],"secretName":"pcdcanalysistools-jwt-keys"}}]` | Volumes to attach to the pod. |
+| volumeMounts | list | `[{"mountPath":"/guppy/guppy_config.json","name":"guppy-config","readOnly":true,"subPath":"guppy_config.json"}]` | Volumes to mount to the container. |
+| volumes | list | `[{"configMap":{"items":[{"key":"guppy_config.json","path":"guppy_config.json"}],"name":"manifest-guppy"},"name":"guppy-config"}]` | Volumes to attach to the pod. |
