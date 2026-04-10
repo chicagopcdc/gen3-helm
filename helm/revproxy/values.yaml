@@ -186,6 +186,7 @@ ingress:
   aws:
     group: ""
     sslPolicy: "ELBSecurityPolicy-TLS13-1-2-Res-FIPS-2023-04"
+    inboundCidrs:
   # -- (bool) Whether to create the ingress
   enabled: false
   # -- (string) The ingress class name.
