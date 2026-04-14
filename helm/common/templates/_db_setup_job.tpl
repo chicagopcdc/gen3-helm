@@ -39,9 +39,6 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: Replace=false
 spec:
-  selector:
-    matchLabels:
-      app: {{ .Chart.Name }}-dbcreate
   template:
     metadata:
       labels:
