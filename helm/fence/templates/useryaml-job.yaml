@@ -13,9 +13,6 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: Replace=false
 spec:
-  selector:
-    matchLabels:
-      app: useryaml
   backoffLimit: 10
   template:
     metadata:
