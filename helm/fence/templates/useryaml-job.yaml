@@ -14,9 +14,6 @@ metadata:
     argocd.argoproj.io/sync-options: Replace=false
 spec:
   backoffLimit: 10
-  selector:
-    matchLabels:
-      app: useryaml
   template:
     metadata:
       labels:
@@ -48,8 +45,9 @@ spec:
         command: ["/bin/bash" ]
         args:
           - "-c"
-          # Script always succeeds if it runs (echo exits with 0)
           - |
             fence-create sync --arborist http://arborist-service --yaml /var/www/fence/user.yaml
       restartPolicy: OnFailure
 {{ end }}
+
+
