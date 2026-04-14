@@ -97,7 +97,7 @@ spec:
             {{- toYaml .Values.env | nindent 12 }}
           volumeMounts:
             {{- toYaml .Values.volumeMounts | nindent 12 }}
-            {{- if and (index .Values.global "amanuensis" "enabled") (neq .Values.global.portalApp "gearbox") }}
+            {{- if (index .Values.global "amanuensis" "enabled") }}
             - name: amanuensis-jwt-keys
               readOnly: true
               mountPath: "/amanuensis/jwt_public_key.pem"
