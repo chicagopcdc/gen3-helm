@@ -46,7 +46,7 @@ spec:
       serviceAccountName: {{ include "fence.serviceAccountName" . }}
       volumes:
         {{- toYaml .Values.volumes | nindent 8 }}
-        {{- if (index .Values.global "amanuensis" "enabled") }}
+        {{- if .Values.amanuensis.enabled }}
         - name: amanuensis-jwt-keys
           secret:
             secretName: "amanuensis-jwt-keys"
@@ -97,7 +97,7 @@ spec:
             {{- toYaml .Values.env | nindent 12 }}
           volumeMounts:
             {{- toYaml .Values.volumeMounts | nindent 12 }}
-            {{- if (index .Values.global "amanuensis" "enabled") }}
+            {{- if .Values.amanuensis.enabled }}
             - name: amanuensis-jwt-keys
               readOnly: true
               mountPath: "/amanuensis/jwt_public_key.pem"
