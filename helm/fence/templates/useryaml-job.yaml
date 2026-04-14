@@ -11,7 +11,7 @@ kind: Job
 metadata:
   name: useryaml
   annotations:
-    argocd.argoproj.io/sync-options: Replace=false
+    argocd.argoproj.io/sync-options: Replace=false,Force=false
 spec:
   backoffLimit: 10
   template:

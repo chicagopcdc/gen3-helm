@@ -37,12 +37,11 @@ kind: Job
 metadata:
   name: {{ .Chart.Name }}-dbcreate
   annotations:
-    argocd.argoproj.io/sync-options: Replace=false
+    argocd.argoproj.io/sync-options: Replace=false,Force=false
 spec:
   template:
     metadata:
       labels:
-      # TODO : READ FROM CENTRAL FUNCTION TOO?
         gen3job: "yes"
         app: {{ .Chart.Name }}-dbcreate
     spec:
