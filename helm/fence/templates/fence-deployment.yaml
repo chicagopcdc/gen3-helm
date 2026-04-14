@@ -46,6 +46,15 @@ spec:
       serviceAccountName: {{ include "fence.serviceAccountName" . }}
       volumes:
         {{- toYaml .Values.volumes | nindent 8 }}
+        {{- if (index .Values.global "amanuensis" "enabled") }}
+        - name: amanuensis-jwt-keys
+          secret:
+            secretName: "amanuensis-jwt-keys"
+            items:
+              - key: jwt_public_key.pem
+                path: jwt_public_key.pem
+            optional: false
+        {{- end }}
       containers:
         - name: fence
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -88,6 +97,12 @@ spec:
             {{- toYaml .Values.env | nindent 12 }}
           volumeMounts:
             {{- toYaml .Values.volumeMounts | nindent 12 }}
+            {{- if and (index .Values.global "amanuensis" "enabled") (neq .Values.global.portalApp "gearbox") }}
+            - name: amanuensis-jwt-keys
+              readOnly: true
+              mountPath: "/amanuensis/jwt_public_key.pem"
+              subPath: "jwt_public_key.pem"
+            {{- end }}
       initContainers:
         - name: fence-init
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
