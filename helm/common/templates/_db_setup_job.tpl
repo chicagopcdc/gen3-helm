@@ -5,11 +5,17 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Chart.Name }}-dbcreate-sa
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ .Chart.Name }}-dbcreate-role
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 rules:
 - apiGroups: [""]
   resources: ["secrets"]
@@ -19,6 +25,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ .Chart.Name }}-dbcreate-rolebinding
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 subjects:
 - kind: ServiceAccount
   name: {{ .Chart.Name }}-dbcreate-sa
@@ -36,6 +45,9 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Chart.Name }}-dbcreate
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
   template:
     metadata:
