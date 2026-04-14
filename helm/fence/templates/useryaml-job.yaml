@@ -10,12 +10,18 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: useryaml
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=false
 spec:
+  selector:
+    matchLabels:
+      app: useryaml
   backoffLimit: 10
   template:
     metadata:
       labels:
-        app: gen3job
+        gen3job: "yes"
+        app: useryaml
     spec:
       automountServiceAccountToken: false
       volumes:

@@ -36,6 +36,8 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Chart.Name }}-dbcreate
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=false
 spec:
   selector:
     matchLabels:
