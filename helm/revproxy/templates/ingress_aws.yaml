@@ -5,9 +5,6 @@ metadata:
   name: revproxy-alb
   annotations:
     alb.ingress.kubernetes.io/scheme: {{ .Values.global.aws.scheme }}
-    {{- if .Values.ingress.aws.inboundCidrs }}
-    alb.ingress.kubernetes.io/inbound-cidrs: {{ .Values.ingress.aws.inboundCidrs | quote }}
-    {{- end }}
     alb.ingress.kubernetes.io/tags: Environment={{ default .Values.global.environment .Values.ingress.aws.group }}
     alb.ingress.kubernetes.io/certificate-arn: {{ .Values.global.revproxyArn }}
     alb.ingress.kubernetes.io/group.name: "{{ default .Values.global.environment .Values.ingress.aws.group }}"
