@@ -6,6 +6,7 @@ spec:
   podSelector:
     matchLabels:
       app: gen3job
+      gen3job: "yes"
   egress:
     - {}
   policyTypes:

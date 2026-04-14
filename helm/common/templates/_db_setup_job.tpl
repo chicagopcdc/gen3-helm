@@ -37,11 +37,15 @@ kind: Job
 metadata:
   name: {{ .Chart.Name }}-dbcreate
 spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-dbcreate
   template:
     metadata:
       labels:
       # TODO : READ FROM CENTRAL FUNCTION TOO?
-        app: gen3job
+        gen3job: "yes"
+        app: {{ .Chart.Name }}-dbcreate
     spec:
       serviceAccountName: {{ .Chart.Name }}-dbcreate-sa
       {{- if $.Values.podSecurityContext }}
