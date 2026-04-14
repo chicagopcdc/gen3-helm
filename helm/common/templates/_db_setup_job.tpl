@@ -36,14 +36,11 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Chart.Name }}-dbcreate
-  annotations:
-    argocd.argoproj.io/sync-options: Replace=false,Force=false
 spec:
   template:
     metadata:
       labels:
-        gen3job: "yes"
-        app: {{ .Chart.Name }}-dbcreate
+        app: gen3job
     spec:
       serviceAccountName: {{ .Chart.Name }}-dbcreate-sa
       {{- if $.Values.podSecurityContext }}
