@@ -435,6 +435,7 @@ volumes:
   - name: yaml-merge
     configMap:
       name: "fence-yaml-merge"
+  {{- if (index .Values.global "amanuensis" "enabled") }}
   - name: amanuensis-jwt-keys
     secret:
       secretName: "amanuensis-jwt-keys"
@@ -442,6 +443,7 @@ volumes:
         - key: jwt_public_key.pem
           path: jwt_public_key.pem
       optional: false
+  {{- end }}
   - name: config-volume-public
     configMap:
       name: "manifest-fence"
@@ -493,15 +495,16 @@ volumeMounts:
     readOnly: true
     mountPath: "/tmp/keys/readonly/jwt_private_key.pem"
     subPath: "jwt_private_key.pem"
-  - name: "amanuensis-jwt-keys"
-    readOnly: true
-    mountPath: "/amanuensis/jwt_public_key.pem"
-    subPath: "jwt_public_key.pem"
   - name: "config-volume-public"
     readOnly: true
     mountPath: "/var/www/fence/fence-config-public.yaml"
     subPath: fence-config-public.yaml
-
+  {{- if (index .Values.global "amanuensis" "enabled") }}
+  - name: amanuensis-jwt-keys
+    readOnly: true
+    mountPath: "/amanuensis/jwt_public_key.pem"
+    subPath: "jwt_public_key.pem"
+  {{- end }}
 # -- (list) Volumes to mount to the init container.
 initVolumeMounts:
   - name: "config-volume"
