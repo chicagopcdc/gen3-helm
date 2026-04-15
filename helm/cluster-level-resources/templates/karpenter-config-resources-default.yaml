@@ -14,7 +14,6 @@ spec:
   {{- else }}
   amiFamily: AL2
   {{- end }}
-  amiSelectorTerms:
   - name: {{ index .Values "karpenter-crds" "amiSelectorName" }}
     owner: {{ index .Values "karpenter-crds" "amiOwner" | quote }}
   blockDeviceMappings:
@@ -60,12 +59,21 @@ spec:
     --BOUNDARY--
 {{- if semverCompare ">=1.0.8" .Values.karpenter.targetRevision }}
   kubelet:
+    systemReserved:
+      cpu: 100m
+      memory: 256Mi      # reserve for OS processes
+    kubeReserved:
+      cpu: 100m
+      memory: 512Mi      # reserve for kubelet + DaemonSets (aws-node, kube-proxy, ebs-csi-node, s3-csi-node)
     evictionHard:
-      memory.available: 5%
+      memory.available: 200Mi   # evict pods before OOM kill
+      nodefs.available: 10%
     evictionSoft:
-      memory.available: 10%
+      memory.available: 300Mi
+      nodefs.available: 15%
     evictionSoftGracePeriod:
       memory.available: 5m
+      nodefs.available: 5m
 {{- end }}
 ---
 {{- if semverCompare ">=1.0.8" .Values.karpenter.targetRevision }}
