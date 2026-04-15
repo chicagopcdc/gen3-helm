@@ -14,6 +14,7 @@ spec:
   {{- else }}
   amiFamily: AL2
   {{- end }}
+  amiSelectorTerms:
   - name: {{ index .Values "karpenter-crds" "amiSelectorName" }}
     owner: {{ index .Values "karpenter-crds" "amiOwner" | quote }}
   blockDeviceMappings:
@@ -23,27 +24,41 @@ spec:
       encrypted: true
       volumeSize: {{ index .Values "karpenter-crds" "default" "volumeSize" }}
       volumeType: gp3
+  {{- if semverCompare ">=1.0.8" .Values.karpenter.targetRevision }}
+  kubelet:
+    systemReserved:
+      cpu: 100m
+      memory: 256Mi
+    kubeReserved:
+      cpu: 100m
+      memory: 512Mi
+    evictionHard:
+      memory.available: 200Mi
+      nodefs.available: 10%
+    evictionSoft:
+      memory.available: 300Mi
+      nodefs.available: 15%
+    evictionSoftGracePeriod:
+      memory.available: 5m
+      nodefs.available: 5m
+  {{- end }}
   metadataOptions:
     httpEndpoint: enabled
     httpProtocolIPv6: disabled
     httpPutResponseHopLimit: 2
     httpTokens: optional
   role: eks_{{ index .Values "karpenter-crds" "selectorTag" }}_workers_role
-
   securityGroupSelectorTerms:
   - tags:
       karpenter.sh/discovery: {{ index .Values "karpenter-crds" "selectorTag" }}
-
   subnetSelectorTerms:
   - tags:
       karpenter.sh/discovery: {{ index .Values "karpenter-crds" "selectorTag" }}
-
   tags:
     Environment: {{ .Values.cluster }}
     Name: eks-{{ .Values.cluster }}-karpenter
     karpenter.sh/discovery: {{ index .Values "karpenter-crds" "selectorTag" }}
     purpose: default
-
   userData: |
     MIME-Version: 1.0
     Content-Type: multipart/mixed; boundary="BOUNDARY"
@@ -57,24 +72,6 @@ spec:
     sysctl -w fs.inotify.max_user_watches=12000 &
 
     --BOUNDARY--
-{{- if semverCompare ">=1.0.8" .Values.karpenter.targetRevision }}
-  kubelet:
-    systemReserved:
-      cpu: 100m
-      memory: 256Mi      # reserve for OS processes
-    kubeReserved:
-      cpu: 100m
-      memory: 512Mi      # reserve for kubelet + DaemonSets (aws-node, kube-proxy, ebs-csi-node, s3-csi-node)
-    evictionHard:
-      memory.available: 200Mi   # evict pods before OOM kill
-      nodefs.available: 10%
-    evictionSoft:
-      memory.available: 300Mi
-      nodefs.available: 15%
-    evictionSoftGracePeriod:
-      memory.available: 5m
-      nodefs.available: 5m
-{{- end }}
 ---
 {{- if semverCompare ">=1.0.8" .Values.karpenter.targetRevision }}
 apiVersion: karpenter.sh/v1
@@ -95,13 +92,11 @@ spec:
       terminationGracePeriod: 48h
       requirements:
       {{ toYaml (index .Values "karpenter-crds" "default" "requirements") | nindent 6 }}
-
   disruption:
     consolidateAfter: {{ index .Values "karpenter-crds" "default" "consolidateAfter" }}
     consolidationPolicy: {{ index .Values "karpenter-crds" "default" "consolidationPolicy" }}
     budgets:
     - nodes: {{ index .Values "karpenter-crds" "default" "disruptionBudget" }}
-
   limits:
     cpu: {{ index .Values "karpenter-crds" "default" "limits" "cpu" }}
     memory: {{ index .Values "karpenter-crds" "default" "limits" "memory" }}
