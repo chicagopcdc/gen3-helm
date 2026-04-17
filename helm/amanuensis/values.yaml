@@ -278,12 +278,43 @@ env:
     value: /var/www/amanuensis
   - name: GEN3_DEBUG
     value: "False"
-  - name: AMANUENSIS_PUBLIC_CONFIG
+  - name: PGHOST
+    valueFrom:
+      secretKeyRef:
+        name: amanuensis-dbcreds
+        key: host
+        optional: false
+  - name: PGUSER
+    valueFrom:
+      secretKeyRef:
+        name: amanuensis-dbcreds
+        key: username
+        optional: false
+  - name: PGPASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: amanuensis-dbcreds
+        key: password
+        optional: false
+  - name: PGDB
+    valueFrom:
+      secretKeyRef:
+        name: amanuensis-dbcreds
+        key: database
+        optional: false
+  - name: DBREADY
+    valueFrom:
+      secretKeyRef:
+        name: amanuensis-dbcreds
+        key: dbcreated
+        optional: false
+  - name: DB
+    value: postgresql://$(PGUSER):$(PGPASSWORD)@$(PGHOST):5432/$(PGDB)
+  - name: gen3Env
     valueFrom:
       configMapKeyRef:
-        name: manifest-amanuensis
-        key: amanuensis-config-public.yaml
-        optional: true
+        name: manifest-global
+        key: hostname
 
 # -- (list) Volumes to attach to the container.
 volumes:
