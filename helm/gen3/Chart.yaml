@@ -140,7 +140,7 @@ dependencies:
     repository: "file://../amanuensis"
     condition: amanuensis.enabled
   - name: gearbox
-    version: 0.1.1
+    version: 0.1.2
     repository: "file://../gearbox"
     condition: gearbox.enabled
   - name: gearbox-middleware
