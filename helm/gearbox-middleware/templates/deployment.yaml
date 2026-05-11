@@ -52,37 +52,26 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            {{- toYaml .Values.env | nindent 12 }}
-            {{- if and .Values.gearboxMiddlewareG3auto.awsaccesskey .Values.gearboxMiddlewareG3auto.awssecretkey }}
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: gearbox-middleware-g3auto
-                  key: aws_access_key_id
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: gearbox-middleware-g3auto
-                  key: aws_secret_access_key
-            {{- else if or (.Values.secrets.awsSecretAccessKey) (.Values.global.aws.awsSecretAccessKey) (.Values.global.aws.externalSecrets.enabled) (.Values.global.aws.useLocalSecret.enabled) }}
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                {{- if .Values.global.aws.useLocalSecret.enabled }}
-                  name: {{ .Values.global.aws.useLocalSecret.localSecretName }}
-                {{- else }}
-                  name: {{.Chart.Name}}-aws-config
-                {{- end }}
-                  key: access-key
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                {{- if .Values.global.aws.useLocalSecret.enabled }}
-                  name: {{ .Values.global.aws.useLocalSecret.localSecretName }}
-                {{- else }}
-                  name: {{.Chart.Name}}-aws-config
-                {{- end }}
-                  key: secret-access-key
+            - name: HOSTNAME
+              value: {{ .Values.global.hostname | quote }}
+            - name: AWS_REGION
+              value: {{ .Values.gearboxMiddlewareG3auto.awsRegion | quote }}
+            - name: TESTING
+              value: {{ .Values.gearboxMiddlewareG3auto.testing | quote }}
+            - name: DEBUG
+              value: {{ .Values.gearboxMiddlewareG3auto.debug | quote }}
+            - name: ALLOWED_ISSUERS
+              value: {{ tpl .Values.gearboxMiddlewareG3auto.allowedIssuers . | quote }}
+            - name: USER_API
+              value: {{ .Values.gearboxMiddlewareG3auto.userApi | quote }}
+            - name: FORCE_ISSUER
+              value: {{ .Values.gearboxMiddlewareG3auto.forceIssuer | quote }}
+            - name: DUMMY_S3
+              value: {{ .Values.gearboxMiddlewareG3auto.dummyS3 | quote }}
+            - name: ENABLE_PHI
+              value: {{ .Values.gearboxMiddlewareG3auto.enablePhi | quote }}
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           volumeMounts:
             {{- toYaml .Values.volumeMounts | nindent 12 }}
@@ -102,7 +91,17 @@ spec:
               path: /_status
               port: 80
       initContainers:
-        - name: wait-for-gearbox
-          image: quay.io/cdis/awshelper:master
-          command: ["/bin/sh","-c"]
-          args: ["while [ $(curl -sw '%{http_code}' http://gearbox-service/_status -o /dev/null) -ne 200 ]; do sleep 5; echo 'Waiting for gearbox...'; done"]
+        - name: gearbox-db-migrate
+          image: "{{ .Values.global.gearboxMatchingImage.repository }}:{{ .Values.global.gearboxMatchingImage.tag }}"
+          imagePullPolicy: {{ .Values.global.gearboxMatchingImage.pullPolicy }}
+          volumeMounts:
+            {{- toYaml .Values.VolumeMounts | nindent 12 }}
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          command: ["/bin/sh"]
+          args:
+            - "-c"
+            - |
+              poetry run alembic upgrade head

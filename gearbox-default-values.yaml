@@ -5,6 +5,11 @@ global:
   dictionaryUrl: https://pcdc-gen3-dictionaries.s3.amazonaws.com/pcdc-schema-demo-amia.json
   authz_entity_name: "subject"
 
+  gearboxMatchingImage:
+    repository: gearbox-be
+    tag: "test"
+    pullPolicy: Never
+
 arborist:
   #local Dev Only
   postgres:
@@ -102,9 +107,9 @@ fence:
 portal:
   enabled: true
   image:
-    repository: quay.io/pcdc/gearbox_fe
-    tag: "dev"
-    pullPolicy: Always
+    repository: gearbox-fe
+    tag: "test"
+    pullPolicy: Never
   resources:
     requests:
       cpu: 1.0
@@ -123,31 +128,20 @@ revproxy:
     tag: "2026.04"
 
 gearbox:
-  #local Dev Only
-  postgres:
-    password: "gearbox_thisisaweakpassword"
-  enabled: false
-  image:
-    repository: quay.io/pcdc/gearbox_be
-    tag: "pcdc_dev_2026-04-15T11_09_32-05_00"
-    pullPolicy: Always
-  # image:
-  #   repository: gearbox-be
-  #   tag: "test"
-  #   pullPolicy: Never
+  enabled: true
 
 gearbox-middleware:
   enabled: true
-  gearboxMiddlewareG3auto:
-    testing: False
-  image:
-    repository: quay.io/pcdc/gearbox-middleware
-    tag: "pcdc_dev_2026-04-08T10_24_52-05_00"
-    pullPolicy: Always
+  postgres:
+    password: "gearbox_thisisaweakpassword"
   # image:
-  #   repository: gearbox-middleware
-  #   tag: "test"
-  #   pullPolicy: Never
+  #   repository: quay.io/pcdc/gearbox-middleware
+  #   tag: "pcdc_dev_2026-04-08T10_24_52-05_00"
+  #   pullPolicy: IfNotPresent
+  image:
+    repository: gearbox-middleware
+    tag: "test"
+    pullPolicy: Never
 
 postgresql:
   image:

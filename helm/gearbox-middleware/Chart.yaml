@@ -27,6 +27,3 @@ dependencies:
   - name: common
     version: 0.1.34
     repository: file://../common
-  - name: gearbox
-    version: 0.1.1
-    repository: file://../gearbox
