@@ -292,8 +292,6 @@ gearboxG3auto:
   testing: False
   # -- (bool) Whether to run in debug mode.
   debug: False
-  # -- (bool) Whether to allow for phi.
-  enablePhi: False
   # -- (string) use a public dummy S3 bucket for testing presigned urls
   dummyS3: True
   # -- (string) accepted issuers in fence tokens.

@@ -68,8 +68,6 @@ spec:
               value: {{ .Values.gearboxG3auto.forceIssuer | quote }}
             - name: DUMMY_S3
               value: {{ .Values.gearboxG3auto.dummyS3 | quote }}
-            - name: ENABLE_PHI
-              value: {{ .Values.gearboxG3auto.enablePhi | quote }}
             {{- with .Values.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

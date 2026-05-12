@@ -6,9 +6,12 @@ global:
   authz_entity_name: "subject"
 
   gearboxMatchingImage:
-    repository: gearbox-be
-    tag: "test"
-    pullPolicy: Never
+    repository: "quay.io/pcdc/gearbox_be"
+    tag: "pcdc_dev_2026-04-29T11_44_58-05_00"
+    pullPolicy: IfNotPresent
+    # repository: gearbox-be
+    # tag: "test"
+    # pullPolicy: Never
 
 arborist:
   #local Dev Only
@@ -107,9 +110,9 @@ fence:
 portal:
   enabled: true
   image:
-    repository: gearbox-fe
-    tag: "test"
-    pullPolicy: Never
+    repository: "quay.io/pcdc/gearbox_fe"
+    tag: "dev"
+    pullPolicy: Always
   resources:
     requests:
       cpu: 1.0
@@ -134,14 +137,14 @@ gearbox-middleware:
   enabled: true
   postgres:
     password: "gearbox_thisisaweakpassword"
-  # image:
-  #   repository: quay.io/pcdc/gearbox-middleware
-  #   tag: "pcdc_dev_2026-04-08T10_24_52-05_00"
-  #   pullPolicy: IfNotPresent
   image:
-    repository: gearbox-middleware
-    tag: "test"
-    pullPolicy: Never
+    repository: quay.io/pcdc/gearbox-middleware
+    tag: "pcdc_dev_2026-04-08T10_24_52-05_00"
+    pullPolicy: IfNotPresent
+  # image:
+  #   repository: gearbox-middleware
+  #   tag: "test"
+  #   pullPolicy: Never
 
 postgresql:
   image:

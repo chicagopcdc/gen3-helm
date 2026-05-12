@@ -30,14 +30,13 @@ A Helm chart for Kubernetes
 | externalSecrets | map | `{"createK8sgearboxSecret":false,"gearboxG3auto":null}` | External Secrets settings. |
 | externalSecrets.createK8sgearboxSecret | string | `false` | Will create the Helm "gearbox-g3auto" secret even if Secrets Manager is enabled. This is helpful if you are wanting to use External Secrets for some, but not all secrets. |
 | externalSecrets.gearboxG3auto | string | `nil` | Will override the name of the aws secrets manager secret. Default is "gearbox-g3auto" |
-| gearboxG3auto | map | `{"allowedIssuers":"http://fence-service/,https://localhost/user","awsRegion":"us-east-1","awsaccesskey":"","awssecretkey":"","debug":false,"dummyS3":true,"enablePhi":false,"forceIssuer":true,"gearboxMiddlewarePublicKeyPath":"/gearbox/src/gearbox/keys/jwt_public_key.pem","hostname":"localhost","testing":false,"userApi":"http://fence-service/"}` | Values for gearbox secret. If the variable you want to change is not listed here it can be added to |
+| gearboxG3auto | map | `{"awsaccesskey":"","awssecretkey":""}` | Values for gearbox secret. If the variable you want to change is not listed here it can be added to |
 | gearboxG3auto.allowedIssuers | string | `"http://fence-service/,https://localhost/user"` | accepted issuers in fence tokens. |
 | gearboxG3auto.awsRegion | string | `"us-east-1"` | region for AWS. |
 | gearboxG3auto.awsaccesskey | string | `""` | AWS access key. |
 | gearboxG3auto.awssecretkey | string | `""` | AWS secret access key. |
 | gearboxG3auto.debug | bool | `false` | Whether to run in debug mode. |
 | gearboxG3auto.dummyS3 | string | `true` | use a public dummy S3 bucket for testing presigned urls |
-| gearboxG3auto.enablePhi | bool | `false` | Whether to allow for phi. |
 | gearboxG3auto.forceIssuer | string | `true` | whether to use the userApi value when validating tokens. |
 | gearboxG3auto.gearboxMiddlewarePublicKeyPath | string | `"/gearbox/src/gearbox/keys/jwt_public_key.pem"` | public key path for service to service requests with gearbox. |
 | gearboxG3auto.testing | bool | `false` | Whether to set gearbox backend into testing mode. |
