@@ -40,10 +40,15 @@ spec:
   template:
     metadata:
       labels:
-      # TODO : READ FROM CENTRAL FUNCTION TOO?
         app: gen3job
     spec:
       serviceAccountName: {{ .Chart.Name }}-dbcreate-sa
+      {{- if $.Values.podSecurityContext }}
+      securityContext:
+      {{- range $k, $v := $.Values.podSecurityContext }}
+        {{ $k }}: {{ $v  }}
+      {{- end }}
+      {{- end }}
       restartPolicy: Never
       containers:
       - name: db-setup
@@ -145,19 +150,25 @@ spec:
             if psql -lqt | cut -d \| -f 1 | grep -qw $SERVICE_PGDB; then
               gen3_log_info "Database exists"
               PGPASSWORD=$SERVICE_PGPASS psql -d $SERVICE_PGDB -h $PGHOST -p $PGPORT -U $SERVICE_PGUSER -c "\conninfo"
-
-              # Update secret to signal that db is ready, and services can start
               kubectl patch secret/{{ .Chart.Name }}-dbcreds -p '{"data":{"dbcreated":"dHJ1ZQo="}}'
             else
-              echo "database does not exist"
-              psql -tc "SELECT 1 FROM pg_database WHERE datname = '$SERVICE_PGDB'" | grep -q 1 || psql -c "CREATE DATABASE \"$SERVICE_PGDB\";"
-              gen3_log_info psql -tc "SELECT 1 FROM pg_user WHERE usename = '$SERVICE_PGUSER'" | grep -q 1 || psql -c "CREATE USER \"$SERVICE_PGUSER\" WITH PASSWORD '$SERVICE_PGPASS';"
-              psql -tc "SELECT 1 FROM pg_user WHERE usename = '$SERVICE_PGUSER'" | grep -q 1 || psql -c "CREATE USER \"$SERVICE_PGUSER\" WITH PASSWORD '$SERVICE_PGPASS';"
-              psql -c "GRANT ALL ON DATABASE \"$SERVICE_PGDB\" TO \"$SERVICE_PGUSER\" WITH GRANT OPTION;"
-              psql -d $SERVICE_PGDB -c "CREATE EXTENSION ltree; ALTER ROLE \"$SERVICE_PGUSER\" WITH LOGIN"
-              PGPASSWORD=$SERVICE_PGPASS psql -d $SERVICE_PGDB -h $PGHOST -p $PGPORT -U $SERVICE_PGUSER -c "\conninfo"
+              echo "Database does not exist — creating..."
+              psql -tc "SELECT 1 FROM pg_database WHERE datname = '$SERVICE_PGDB'" | grep -q 1 || \
+                psql -c "CREATE DATABASE \"$SERVICE_PGDB\";"
+              psql -tc "SELECT 1 FROM pg_user WHERE usename = '$SERVICE_PGUSER'" | grep -q 1 || \
+                psql -c "CREATE USER \"$SERVICE_PGUSER\" WITH PASSWORD '$SERVICE_PGPASS';"
 
-              # Update secret to signal that db has been created, and services can start
+              echo "Granting privileges to $SERVICE_PGUSER..."
+              psql -c "GRANT ALL PRIVILEGES ON DATABASE \"$SERVICE_PGDB\" TO \"$SERVICE_PGUSER\";"
+              psql -d $SERVICE_PGDB -c "ALTER SCHEMA public OWNER TO \"$SERVICE_PGUSER\";"
+              psql -d $SERVICE_PGDB -c "GRANT ALL ON SCHEMA public TO \"$SERVICE_PGUSER\";"
+              psql -d $SERVICE_PGDB -c "GRANT ALL ON ALL TABLES IN SCHEMA public TO \"$SERVICE_PGUSER\";"
+              psql -d $SERVICE_PGDB -c "ALTER ROLE \"$SERVICE_PGUSER\" WITH LOGIN;"
+
+              echo "Creating ltree extension..."
+              psql -d $SERVICE_PGDB -c "CREATE EXTENSION IF NOT EXISTS ltree;"
+
+              PGPASSWORD=$SERVICE_PGPASS psql -d $SERVICE_PGDB -h $PGHOST -p $PGPORT -U $SERVICE_PGUSER -c "\conninfo"
               kubectl patch secret/{{ .Chart.Name }}-dbcreds -p '{"data":{"dbcreated":"dHJ1ZQo="}}'
             fi
 {{- end }}
@@ -174,11 +185,6 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ $.Chart.Name }}-dbcreds
-  annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "-5"
-  labels:
-    app: gen3-created-by-hook
 data:
   {{- $existingSecret := (lookup "v1" "Secret" .Release.Namespace (printf "%s-dbcreds" .Chart.Name)) }}
   {{- if $existingSecret }}
@@ -196,7 +202,7 @@ data:
     port: {{ $.Values.postgres.port | b64enc | quote }}
     password: {{ include "gen3.service-postgres" (dict "key" "password" "service" $.Chart.Name "context" $) | b64enc | quote }}
     {{- if $.Values.global.dev }}
-    host: {{ ($.Values.postgres.host | default (printf "%s-%s" $.Release.Name "postgresql") ) | b64enc | quote }}
+    host: {{ ($.Values.postgres.host | default (printf "%s-%s.%s" $.Release.Name "postgresql" $.Release.Namespace ) ) | b64enc | quote }}
     {{- else }}
     host: {{ ( $.Values.postgres.host | default ( $.Values.global.postgres.master.host)) | b64enc | quote }}
     {{- end }}

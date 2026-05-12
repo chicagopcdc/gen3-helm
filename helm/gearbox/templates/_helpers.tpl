@@ -65,3 +65,11 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+  amanuensis Config Secrets Manager Name
+*/}}
+{{- define "gearbox-g3auto" -}}
+{{- default "gearbox-g3auto" .Values.externalSecrets.gearboxG3auto }}
+{{- end }}
+

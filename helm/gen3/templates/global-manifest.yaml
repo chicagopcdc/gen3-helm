@@ -23,31 +23,31 @@ data:
   "fence_url":  {{ .Values.global.fenceURL | quote }}
   {{- end -}}
   {{- if .Values.global.indexdURL }}
-  "indexd_url": {{ . | quote }}
+  "indexd_url": {{ .Values.global.indexdURL | quote }}
   {{- end -}}
   {{- if .Values.global.workspaceURL }}
-  "workspace_url": {{ . | quote }}
+  "workspace_url": {{ .Values.global.workspaceURL | quote }}
   {{- end -}}
   {{- if .Values.global.wtsURL }}
-  "wts_url":  {{ . | quote }}
+  "wts_url": {{ .Values.global.wtsURL | quote }}
   {{- end -}}
   {{- if .Values.global.arboristURL }}
-  "arborist_url":  {{ . | quote }}
+  "arborist_url": {{ .Values.global.arboristURL | quote }}
   {{- end -}}
   {{- if .Values.global.manifestServiceURL }}
-  "manifest_service_url": {{ . | quote }}
+  "manifest_service_url": {{ .Values.global.manifestServiceURL | quote }}
   {{- end -}}
   {{- if .Values.global.privacyPolicyURL }}
-  "privacy_policy_url": {{ . | quote }}
+  "privacy_policy_url": {{ .Values.global.privacyPolicyURL | quote }}
   {{- end -}}
   {{- if .Values.global.mapboxToken }}
-  "mapbox_token": {{ . | quote }}
+  "mapbox_token": {{ .Values.global.mapboxToken | quote }}
   {{- end -}}
   {{- if .Values.global.cookieDomain }}
-  "cookie_domain": {{ . | quote }}
+  "cookie_domain": {{ .Values.global.cookieDomain | quote }}
   {{- end -}}
   {{- if .Values.global.desNamespace }}
-  "des_namespace":  {{ . | quote }}
+  "des_namespace": {{ .Values.global.desNamespace | quote }}
   {{- end -}}
   {{- with .Values.global.origins_allow_credentials }}
   "origins_allow_credentials": {{ . | toJson | quote }}

@@ -53,7 +53,8 @@ spec:
       serviceAccountName: {{ .Chart.Name }}-jwt-public-key-patch-sa
       containers:
       - name: public-key-gen
-        image: bitnamisecure/kubectl:latest
+        image: quay.io/cdis/awshelper:master
+        imagePullPolicy: Always
         env:
           - name: PRIVATE_KEY_PEM
             valueFrom:

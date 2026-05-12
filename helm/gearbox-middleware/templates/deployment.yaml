@@ -19,7 +19,6 @@ spec:
       labels:
         public: "yes"
         s3: "yes"
-        userhelper: "yes"
         {{- include "gearbox-middleware.selectorLabels" . | nindent 8 }}
         {{- include "common.extraLabels" . | nindent 8 }}
       annotations:
@@ -104,6 +103,6 @@ spec:
               port: 80
       initContainers:
         - name: wait-for-gearbox
-          image: curlimages/curl:latest
+          image: quay.io/cdis/awshelper:master
           command: ["/bin/sh","-c"]
           args: ["while [ $(curl -sw '%{http_code}' http://gearbox-service/_status -o /dev/null) -ne 200 ]; do sleep 5; echo 'Waiting for gearbox...'; done"]
