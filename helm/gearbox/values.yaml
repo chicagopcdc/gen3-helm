@@ -301,6 +301,11 @@ gearboxG3auto:
   # -- (string) whether to use the userApi value when validating tokens.
   forceIssuer: True
 
+  # -- (string) Name of the S3 bucket used in production.
+  s3ProdBucketName:
+  # -- (string) ARN of the role used for production promotion.
+  prodPromotionRoleArn:
+
 # Values to determine the labels that are used for the deployment, pod, etc.
 # -- (string) Valid options are "production" or "dev". If invalid option is set- the value will default to "dev".
 release: "production"
