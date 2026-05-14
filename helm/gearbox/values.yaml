@@ -300,7 +300,6 @@ gearboxG3auto:
   userApi: "http://fence-service/"
   # -- (string) whether to use the userApi value when validating tokens.
   forceIssuer: True
-
   # -- (string) Name of the S3 bucket used in production.
   s3ProdBucketName:
   # -- (string) ARN of the role used for production promotion.

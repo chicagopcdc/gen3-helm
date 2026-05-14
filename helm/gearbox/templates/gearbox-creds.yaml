@@ -12,4 +12,5 @@ stringData:
   gearbox.env: |
     S3_AWS_ACCESS_KEY_ID={{ .Values.gearboxG3auto.awsaccesskey }}
     S3_AWS_SECRET_ACCESS_KEY={{ .Values.gearboxG3auto.awssecretkey }}
+    PROD_PROMOTION_ROLE_ARN={{ .Values.gearboxG3auto.prodPromotionRoleArn }}
 {{- end }}
