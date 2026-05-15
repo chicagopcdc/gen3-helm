@@ -49,40 +49,29 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds}}
       containers:
         - name: gearbox
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.global.gearboxMatchingImage.repository }}:{{ .Values.global.gearboxMatchingImage.tag }}"
+          imagePullPolicy: {{ .Values.global.gearboxMatchingImage.pullPolicy }}
           env:
-            {{- toYaml .Values.env | nindent 12 }}
-            {{- if and .Values.gearboxG3auto.awsaccesskey .Values.gearboxG3auto.awssecretkey }}
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: gearbox-g3auto
-                  key: aws_access_key_id
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: gearbox-g3auto
-                  key: aws_secret_access_key
-            {{- else if or (.Values.secrets.awsSecretAccessKey) (.Values.global.aws.awsSecretAccessKey) (.Values.global.aws.externalSecrets.enabled) (.Values.global.aws.useLocalSecret.enabled) }}
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                {{- if .Values.global.aws.useLocalSecret.enabled }}
-                  name: {{ .Values.global.aws.useLocalSecret.localSecretName }}
-                {{- else }}
-                  name: {{.Chart.Name}}-aws-config
-                {{- end }}
-                  key: access-key
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                {{- if .Values.global.aws.useLocalSecret.enabled }}
-                  name: {{ .Values.global.aws.useLocalSecret.localSecretName }}
-                {{- else }}
-                  name: {{.Chart.Name}}-aws-config
-                {{- end }}
-                  key: secret-access-key
+            - name: HOSTNAME
+              value: {{ .Values.global.hostname | quote }}
+            - name: AWS_REGION
+              value: {{ .Values.gearboxG3auto.awsRegion | quote }}
+            - name: TESTING
+              value: {{ .Values.gearboxG3auto.testing | quote }}
+            - name: DEBUG
+              value: {{ .Values.gearboxG3auto.debug | quote }}
+            - name: ALLOWED_ISSUERS
+              value: {{ tpl .Values.gearboxG3auto.allowedIssuers . | quote }}
+            - name: USER_API
+              value: {{ .Values.gearboxG3auto.userApi | quote }}
+            - name: FORCE_ISSUER
+              value: {{ .Values.gearboxG3auto.forceIssuer | quote }}
+            - name: DUMMY_S3
+              value: {{ .Values.gearboxG3auto.dummyS3 | quote }}
+            - name: S3_PROD_BUCKET_NAME
+              value: {{ .Values.gearboxG3auto.s3ProdBucketName | quote }}
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           volumeMounts:
             {{- toYaml .Values.volumeMounts | nindent 12 }}
@@ -103,8 +92,8 @@ spec:
               port: 80
       initContainers:
         - name: gearbox-db-migrate
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.global.gearboxMatchingImage.repository }}:{{ .Values.global.gearboxMatchingImage.tag }}"
+          imagePullPolicy: {{ .Values.global.gearboxMatchingImage.pullPolicy }}
           volumeMounts:
             {{- toYaml .Values.initVolumeMounts | nindent 12 }}
           env:

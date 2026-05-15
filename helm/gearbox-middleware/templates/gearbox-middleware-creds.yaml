@@ -9,21 +9,6 @@ stringData:
   {{- $randomPass := printf "%s%s" "gateway:" (randAlphaNum 32) }}
   base64Authz.txt: {{ if and $existingSecret (index $existingSecret.data "base64Authz.txt") }}{{ (index $existingSecret.data "base64Authz.txt") | b64dec | quote }}{{ else }}{{ $randomPass | quote }}{{ end }}
   gearbox-middleware.env: |
-    HOSTNAME={{ .Values.global.hostname }}
-    {{ if and .Values.gearboxMiddlewareG3auto.awsaccesskey .Values.gearboxMiddlewareG3auto.awssecretkey }}
-    aws_access_key_id={{ .Values.gearboxMiddlewareG3auto.awsaccesskey }}
-    aws_secret_access_key={{ .Values.gearboxMiddlewareG3auto.awssecretkey }}
-    {{ end }}
-    AWS_REGION={{ .Values.gearboxMiddlewareG3auto.awsRegion }}
-    TESTING={{ .Values.gearboxMiddlewareG3auto.testing }}
-    DEBUG={{ .Values.gearboxMiddlewareG3auto.debug }}
-    ALLOWED_ISSUERS={{ .Values.gearboxMiddlewareG3auto.allowedIssuers }}
-    USER_API={{ .Values.gearboxMiddlewareG3auto.userApi }}
-    FORCE_ISSUER={{ .Values.gearboxMiddlewareG3auto.forceIssuer }}
-    PRIVATE_KEY_PATH={{ .Values.gearboxMiddlewareG3auto.gearboxMiddlewarePrivateKeyPath }}
-data:
-  {{- if and .Values.gearboxMiddlewareG3auto.awsaccesskey .Values.gearboxMiddlewareG3auto.awssecretkey }}
-  aws_access_key_id: {{ .Values.gearboxMiddlewareG3auto.awsaccesskey | b64enc | quote }}
-  aws_secret_access_key: {{ .Values.gearboxMiddlewareG3auto.awssecretkey | b64enc | quote }}
-  {{- end }}
+    S3_AWS_ACCESS_KEY_ID={{ .Values.gearboxMiddlewareG3auto.awsaccesskey }}
+    S3_AWS_SECRET_ACCESS_KEY={{ .Values.gearboxMiddlewareG3auto.awssecretkey }}
 {{- end }}

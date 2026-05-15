@@ -1,0 +1,17 @@
+{{- $chartNameOverride := "" -}}
+{{- if and .Values.postgres .Values.postgres.chartNameOverride -}}
+{{- $chartNameOverride = .Values.postgres.chartNameOverride -}}
+{{- end -}}
+{{- $dbInitCtx := dict "root" . "chartNameOverride" $chartNameOverride -}}
+{{ include "common.db-secret" $dbInitCtx }}
+---
+{{ include "common.db_setup_job" $dbInitCtx }}
+---
+{{ include "common.db_setup_sa" $dbInitCtx }}
+---
+{{- if and $.Values.global.externalSecrets.deploy (or $.Values.global.externalSecrets.pushSecret .Values.externalSecrets.pushSecret) }}
+---
+{{ include "common.db-push-secret" $dbInitCtx }}
+---
+{{ include "common.secret.db.bootstrap" $dbInitCtx }}
+{{- end }}

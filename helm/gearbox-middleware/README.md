@@ -30,14 +30,14 @@ A Helm chart for Kubernetes
 | externalSecrets | map | `{"createK8sgearboxMiddlewareSecret":false,"gearboxMiddlewareG3auto":null}` | External Secrets settings. |
 | externalSecrets.createK8sgearboxMiddlewareSecret | string | `false` | Will create the Helm "gearbox-middleware-g3auto" secret even if Secrets Manager is enabled. This is helpful if you are wanting to use External Secrets for some, but not all secrets. |
 | externalSecrets.gearboxMiddlewareG3auto | string | `nil` | Will override the name of the aws secrets manager secret. Default is "gearbox-middleware-g3auto" |
-| gearboxMiddlewareG3auto | map | `{"allowedIssuers":"http://fence-service/,https://localhost/user","awsRegion":"us-east-1","awsaccesskey":"","awssecretkey":"","debug":false,"forceIssuer":true,"gearboxMiddlewarePrivateKeyPath":"/gearbox-middleware/gearbox_middleware/keys/jwt_private_key.pem","hostname":"localhost","testing":true,"userApi":"http://fence-service/"}` | Values for gearbox-middleware secret. If the variable you want to change is not listed here it can be added to |
+| gearboxMiddlewareG3auto | map | `{"awsaccesskey":"","awssecretkey":""}` | Values for gearbox-middleware secret. If the variable you want to change is not listed here it can be added to |
 | gearboxMiddlewareG3auto.allowedIssuers | string | `"http://fence-service/,https://localhost/user"` | accepted issuers in fence tokens. |
 | gearboxMiddlewareG3auto.awsRegion | string | `"us-east-1"` | region for AWS. |
 | gearboxMiddlewareG3auto.awsaccesskey | string | `""` | AWS access key. |
 | gearboxMiddlewareG3auto.awssecretkey | string | `""` | AWS secret access key. |
 | gearboxMiddlewareG3auto.debug | bool | `false` | Whether to run in debug mode. |
 | gearboxMiddlewareG3auto.forceIssuer | string | `true` | whether to use the userApi value when validating tokens. |
-| gearboxMiddlewareG3auto.gearboxMiddlewarePrivateKeyPath | string | `"/gearbox-middleware/gearbox_middleware/keys/jwt_private_key.pem"` | private key path for service to service requests with gearbox-middleware. |
+| gearboxG3auto.enablePhi | bool | `false` | Whether to allow for phi. |
 | gearboxMiddlewareG3auto.testing | bool | `true` | Whether to set gearbox-middleware backend into testing mode. |
 | gearboxMiddlewareG3auto.userApi | string | `"http://fence-service/"` | url for fence. |
 | global.autoscaling.averageCPUValue | string | `"500m"` |  |

@@ -2,10 +2,18 @@
   Service DB Creds Secrets Manager Name
 */}}
 {{- define "common.externalSecret.dbcreds.name" -}}
-{{- if .Values.externalSecrets.dbcreds }}
-  {{- default .Values.externalSecrets.dbcreds }}
+{{- $ctx := . -}}
+{{- if and (kindIs "map" .) (hasKey . "root") -}}
+{{- $ctx = .root -}}
+{{- end -}}
+{{- $chartName := $ctx.Chart.Name -}}
+{{- if and (kindIs "map" .) (hasKey . "chartNameOverride") .chartNameOverride -}}
+{{- $chartName = .chartNameOverride -}}
+{{- end -}}
+{{- if $ctx.Values.externalSecrets.dbcreds }}
+  {{- default $ctx.Values.externalSecrets.dbcreds }}
 {{- else }}
-  {{- .Values.global.environment }}- {{- .Chart.Name }}-creds
+  {{- $ctx.Values.global.environment }}- {{- $chartName }}-creds
 {{- end -}}
 {{- end -}}
 
@@ -16,22 +24,30 @@
     ExternalSecrets Object
 */}}
 {{- define "common.externalSecret.db" -}}
-{{- if and .Values.global.externalSecrets.deploy (not .Values.global.externalSecrets.createLocalK8sSecret) }}
+{{- $ctx := . -}}
+{{- if and (kindIs "map" .) (hasKey . "root") -}}
+{{- $ctx = .root -}}
+{{- end -}}
+{{- $chartName := $ctx.Chart.Name -}}
+{{- if and (kindIs "map" .) (hasKey . "chartNameOverride") .chartNameOverride -}}
+{{- $chartName = .chartNameOverride -}}
+{{- end -}}
+{{- if and $ctx.Values.global.externalSecrets.deploy (not $ctx.Values.global.externalSecrets.createLocalK8sSecret) }}
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
-  name: {{ $.Chart.Name }}-dbcreds
+  name: {{ $chartName }}-dbcreds
 spec:
   refreshInterval: 5m
   secretStoreRef:
-    name: {{include "common.SecretStore" .}}
+    name: {{include "common.SecretStore" $ctx}}
     kind: SecretStore
   target:
-    name: {{ $.Chart.Name }}-dbcreds
+    name: {{ $chartName }}-dbcreds
     creationPolicy: Owner
   dataFrom:
   - extract:
-      key: {{include "common.externalSecret.dbcreds.name" .}}
+      key: {{include "common.externalSecret.dbcreds.name" (dict "root" $ctx "chartNameOverride" $chartName)}}
       conversionStrategy: Default
       decodingStrategy: None
 {{- end }}
