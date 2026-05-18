@@ -26,11 +26,14 @@ spec:
         {{- include "aws-es-proxy.selectorLabels" . | nindent 8 }}
         {{- include "common.extraLabels" . | nindent 8 }}
         netvpc: "yes"
-      {{- if .Values.metricsEnabled }}
+      {{- if coalesce .Values.metricsEnabled .Values.global.metricsEnabled true }}
       annotations:
       {{- include "common.grafanaAnnotations" . | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.global.topologySpread.enabled }}
+      {{- include "common.TopologySpread" . | nindent 6 }}
+      {{- end }}
       serviceAccountName: {{ include "aws-es-proxy.serviceAccountName" . }}
       automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
       volumes:

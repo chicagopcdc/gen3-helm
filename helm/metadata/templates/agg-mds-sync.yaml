@@ -12,7 +12,8 @@ kind: CronJob
 metadata:
   name: metadata-aggregate-sync
 spec:
-  schedule: "0 0 1 1 */5"
+  suspend: {{ .Values.suspendCronjob }}
+  schedule: {{ .Values.schedule | quote }}
   jobTemplate:
     spec:
       template:
@@ -102,6 +103,8 @@ spec:
                   value: {{ (.Values.useAggMds | quote | default "True") }}
                 - name: AGG_MDS_NAMESPACE
                   value: {{ .Values.aggMdsNamespace | default .Release.Name }}
+                - name: AGG_MDS_DEFAULT_DATA_DICT_FIELD
+                  value: {{ .Values.aggMdsDefaultDataDictField}}
               imagePullPolicy: Always
               command: ["/bin/sh"]
               args:
@@ -145,7 +148,7 @@ spec:
                     echo "Waiting for status file..."
                     sleep 5
                   done
-                  if ! [[ $(cat /mnt/shared/status) =~ "Success" ]]; then
+                  if [[ $(cat /mnt/shared/status) = "Success" ]]; then
                     success="SUCCESS"
                     color="2EB67D"
                   else

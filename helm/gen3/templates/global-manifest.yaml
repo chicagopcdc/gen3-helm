@@ -16,7 +16,39 @@ data:
   "dd_enabled": {{ .Values.global.ddEnabled | quote }}
   "authz_entity_name": {{.Values.global.authz_entity_name | quote }}
   "frontend_root": {{ .Values.global.frontendRoot | quote }}
-  "slack_webhook": {{ .Values.global.slackWebhook }}
+  "logout_inactive_users": {{ .Values.global.logoutInactiveUsers | quote }}
+  "workspace_timeout_in_minutes": {{ .Values.global.workspaceTimeoutInMinutes | quote }}
+  "maintenance_mode": {{ .Values.global.maintenanceMode | quote }}
+  {{- if .Values.global.fenceURL }}
+  "fence_url":  {{ .Values.global.fenceURL | quote }}
+  {{- end -}}
+  {{- if .Values.global.indexdURL }}
+  "indexd_url": {{ .Values.global.indexdURL | quote }}
+  {{- end -}}
+  {{- if .Values.global.workspaceURL }}
+  "workspace_url": {{ .Values.global.workspaceURL | quote }}
+  {{- end -}}
+  {{- if .Values.global.wtsURL }}
+  "wts_url": {{ .Values.global.wtsURL | quote }}
+  {{- end -}}
+  {{- if .Values.global.arboristURL }}
+  "arborist_url": {{ .Values.global.arboristURL | quote }}
+  {{- end -}}
+  {{- if .Values.global.manifestServiceURL }}
+  "manifest_service_url": {{ .Values.global.manifestServiceURL | quote }}
+  {{- end -}}
+  {{- if .Values.global.privacyPolicyURL }}
+  "privacy_policy_url": {{ .Values.global.privacyPolicyURL | quote }}
+  {{- end -}}
+  {{- if .Values.global.mapboxToken }}
+  "mapbox_token": {{ .Values.global.mapboxToken | quote }}
+  {{- end -}}
+  {{- if .Values.global.cookieDomain }}
+  "cookie_domain": {{ .Values.global.cookieDomain | quote }}
+  {{- end -}}
+  {{- if .Values.global.desNamespace }}
+  "des_namespace": {{ .Values.global.desNamespace | quote }}
+  {{- end -}}
   {{- with .Values.global.origins_allow_credentials }}
   "origins_allow_credentials": {{ . | toJson | quote }}
   {{- end -}}

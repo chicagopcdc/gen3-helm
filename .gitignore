@@ -1,3 +1,4 @@
+.vscode/*
 # --- Folders ---
 **/charts/
 notes/
@@ -8,11 +9,22 @@ _sample-*/
 
 # --- Files ---
 Chart.lock
-.DS_Store                                   # macOS system file (usually ignored)
-secret-values.yaml                          # Helm secrets/values file
-.env                                        # Environment variables
-credentials.json                            # Instance generated service account or credentials
+# macOS system file (usually ignored)
+.DS_Store  
+# Helm secrets/values file                                 
+secret-values.yaml                          
+# Environment variables
+.env                                        
+# Instance generated service account or credentials
+credentials.json                            
 temp.yaml
-/values.yaml                                # Main Helm values file
+# Main Helm values file
+/values.yaml                               
 postgres.txt
 pcdc_data/external/external_reference.json  # External reference data file for PCDC
+
+
+# exception: do not ignore the `helm/funnel/charts/funnel*` file
+!helm/funnel/charts
+helm/funnel/charts/common*
+*copy.yaml

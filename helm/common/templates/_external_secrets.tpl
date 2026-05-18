@@ -2,10 +2,18 @@
   Service DB Creds Secrets Manager Name
 */}}
 {{- define "common.externalSecret.dbcreds.name" -}}
-{{- if .Values.externalSecrets.dbcreds }}
-  {{- default .Values.externalSecrets.dbcreds }}
+{{- $ctx := . -}}
+{{- if and (kindIs "map" .) (hasKey . "root") -}}
+{{- $ctx = .root -}}
+{{- end -}}
+{{- $chartName := $ctx.Chart.Name -}}
+{{- if and (kindIs "map" .) (hasKey . "chartNameOverride") .chartNameOverride -}}
+{{- $chartName = .chartNameOverride -}}
+{{- end -}}
+{{- if $ctx.Values.externalSecrets.dbcreds }}
+  {{- default $ctx.Values.externalSecrets.dbcreds }}
 {{- else }}
-  {{- .Values.global.environment }}- {{- .Chart.Name }}-creds
+  {{- $ctx.Values.global.environment }}- {{- $chartName }}-creds
 {{- end -}}
 {{- end -}}
 
@@ -16,22 +24,30 @@
     ExternalSecrets Object
 */}}
 {{- define "common.externalSecret.db" -}}
-{{ if .Values.global.externalSecrets.deploy }}
+{{- $ctx := . -}}
+{{- if and (kindIs "map" .) (hasKey . "root") -}}
+{{- $ctx = .root -}}
+{{- end -}}
+{{- $chartName := $ctx.Chart.Name -}}
+{{- if and (kindIs "map" .) (hasKey . "chartNameOverride") .chartNameOverride -}}
+{{- $chartName = .chartNameOverride -}}
+{{- end -}}
+{{- if and $ctx.Values.global.externalSecrets.deploy (not $ctx.Values.global.externalSecrets.createLocalK8sSecret) }}
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
-  name: {{ $.Chart.Name }}-dbcreds
+  name: {{ $chartName }}-dbcreds
 spec:
   refreshInterval: 5m
   secretStoreRef:
-    name: {{include "common.SecretStore" .}}
+    name: {{include "common.SecretStore" $ctx}}
     kind: SecretStore
   target:
-    name: {{ $.Chart.Name }}-dbcreds
+    name: {{ $chartName }}-dbcreds
     creationPolicy: Owner
   dataFrom:
   - extract:
-      key: {{include "common.externalSecret.dbcreds.name" .}}
+      key: {{include "common.externalSecret.dbcreds.name" (dict "root" $ctx "chartNameOverride" $chartName)}}
       conversionStrategy: Default
       decodingStrategy: None
 {{- end }}
@@ -39,9 +55,30 @@ spec:
 
 
 {{/*
-    External Secrets Secret Store will allow all charts to allow for authentication to AWS Secrets Manager
+  External Secrets Secret Store will allow all charts to allow for authentication to AWS Secrets Manager
 */}}
-{{ define "common.secretstore" -}}
+{{- define "common.secretstore" -}}
+{{- if .Values.global.gcp.enabled }}
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+  name: {{.Chart.Name}}-secret-store
+spec:
+  provider:
+    gcpsm:
+      projectID: {{ .Values.global.gcp.projectID | quote }}
+      auth:
+        workloadIdentity:
+          serviceAccountRef:
+            name: gcp-secret-store-sa
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gcp-secret-store-sa
+  annotations:
+    iam.gke.io/gcp-service-account: {{ .Values.global.gcp.secretStoreServiceAccount | quote }}
+{{- else }}
 apiVersion: external-secrets.io/v1beta1
 kind: SecretStore
 metadata:
@@ -50,21 +87,22 @@ spec:
   provider:
     aws:
       service: SecretsManager
-      region: {{ .Values.global.aws.region }}
+      region: {{ .Values.global.aws.region | quote }}
       auth:
         {{- if .Values.global.aws.secretStoreServiceAccount.enabled }}
         jwt:
           serviceAccountRef:
             name: {{ .Values.global.aws.secretStoreServiceAccount.name }}
         {{- else }}
-      #   secretRef:
-      #     accessKeyIDSecretRef:
-      #       name: {{.Chart.Name}}-aws-config
-      #       key: access-key
-      #     secretAccessKeySecretRef:
-      #       name: {{.Chart.Name}}-aws-config
-      #       key: secret-access-key
-      #   {{- end}}
+        secretRef:
+          accessKeyIDSecretRef:
+            name: {{.Chart.Name}}-aws-config
+            key: access-key
+          secretAccessKeySecretRef:
+            name: {{.Chart.Name}}-aws-config
+            key: secret-access-key
+        {{- end}}
+{{- end }}
 {{- end }}
 
 
