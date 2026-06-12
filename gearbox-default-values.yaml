@@ -7,7 +7,7 @@ global:
 
   gearboxMatchingImage:
     repository: "quay.io/pcdc/gearbox_be"
-    tag: "pcdc_dev_2026-04-29T11_44_58-05_00"
+    tag: "pcdc_dev_2026-05-15T13_40_52-05_00"
     pullPolicy: IfNotPresent
     # repository: gearbox-be
     # tag: "test"
@@ -28,6 +28,28 @@ fence:
   FENCE_CONFIG:
     DEBUG: true
     MOCK_STORAGE: true
+    #fill in
+    AMANUENSIS_PUBLIC_KEY_PATH: "/fence/keys/key/jwt_public_key.pem"
+    MOCK_GOOGLE_AUTH: true
+    mock_default_user: "test@example.com"
+    DOCUMENT_TYPES: ['privacy-policy', 'terms-and-conditions']
+    INITIAL_DOCUMENTS:
+      'privacy-policy':
+        type: "privacy-policy"
+        version: 1
+        name: "Privacy Notice"
+        raw: "https://github.com/chicagopcdc/chicagopcdc.github.io/blob/pp_tc_v2/docs/PcdcPrivacyNotice.md"
+        formatted: "https://docs.pedscommons.org/PcdcPrivacyNotice/"
+        required: true
+      'terms-and-conditions':
+        type: "terms-and-conditions"
+        version: 1
+        name: "Terms and Conditions"
+        raw: "https://github.com/chicagopcdc/chicagopcdc.github.io/blob/pp_tc_v2/docs/TermsAndConditions.md"
+        formatted: "https://docs.pedscommons.org/TermsAndConditions/"
+        required: true
+    BASIC_REGISTRATION_ACCESS_POLICY: [base_access]
+ 
   image:
     repository: "quay.io/pcdc/fence"
     tag: "3.8.4"
@@ -139,12 +161,15 @@ gearbox-middleware:
     password: "gearbox_thisisaweakpassword"
   image:
     repository: quay.io/pcdc/gearbox-middleware
-    tag: "pcdc_dev_2026-04-08T10_24_52-05_00"
+    tag: "pcdc_dev_2026-05-13T15_38_39-05_00"
     pullPolicy: IfNotPresent
   # image:
   #   repository: gearbox-middleware
   #   tag: "test"
   #   pullPolicy: Never
+  gearboxMiddlewareG3auto:
+    awsaccesskey: "an_access_key"
+    awssecretkey: "a_secret_key"
 
 postgresql:
   image:
