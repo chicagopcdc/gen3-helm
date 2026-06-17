@@ -17,7 +17,7 @@ dependencies:
     repository: "file://../arborist"
     condition: arborist.enabled
   - name: argo-wrapper
-    version: 0.1.29
+    version: 0.1.30
     repository: "file://../argo-wrapper"
     condition: argo-wrapper.enabled
   - name: audit
@@ -48,7 +48,7 @@ dependencies:
     repository: file://../dashboard
     condition: dashboard.enabled
   - name: datareplicate
-    version: 0.1.20
+    version: 0.1.21
     repository: "file://../datareplicate"
     condition: datareplicate.enabled
   - name: data-upload-cron
@@ -92,7 +92,7 @@ dependencies:
     repository: "file://../hatchery"
     condition: hatchery.enabled
   - name: indexd
-    version: 0.1.46
+    version: 0.1.47
     repository: "file://../indexd"
     condition: indexd.enabled
   - name: manifestservice
@@ -116,7 +116,7 @@ dependencies:
     repository: "file://../requestor"
     condition: requestor.enabled
   - name: revproxy
-    version: 0.1.59
+    version: 0.1.61
     repository: "file://../revproxy"
     condition: revproxy.enabled
   - name: sheepdog
@@ -156,15 +156,15 @@ dependencies:
     repository: "file://../gen3-network-policies"
     condition: global.netPolicy.enabled
   - name: dicom-server
-    version: 0.1.30
+    version: 0.1.31
     repository: file://../dicom-server
     condition: dicom-server.enabled
   - name: ohif-viewer
-    version: 0.1.13
+    version: 0.1.14
     repository: file://../ohif-viewer
     condition: ohif-viewer.enabled
   - name: orthanc
-    version: 0.1.14
+    version: 0.1.15
     repository: file://../orthanc
     condition: orthanc.enabled
   - name: gen3-analysis
@@ -213,7 +213,7 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 0.3.53
+version: 0.3.59
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
