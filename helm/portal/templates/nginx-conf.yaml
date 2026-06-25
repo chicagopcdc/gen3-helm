@@ -127,7 +127,8 @@ data:
         listen {{ .Values.service.targetPort }} default_server;
         server_tokens off;
 
-        root /data-portal;
+        # root /data-portal;
+        root {{ required "Set .Values.documentRoot to /data-portal (data-portal) or /usr/share/nginx/html (gearbox-frontend)" .Values.documentRoot }};
         index index.html index.htm;
 
         # dev.html signals dev mode - for developer testing
@@ -172,6 +173,12 @@ data:
         expires 1y;
         access_log off;
         add_header Cache-Control "public";
+        }
+
+        # Any route containing a file extension (e.g. /devicesfile.js) — 404
+        # instead of falling through to index.html for missing static assets
+        location ~ ^.+\.[^/]+$ {
+            try_files $uri =404;
         }
 
         # Any route that doesn't have a file extension (e.g. /devices)

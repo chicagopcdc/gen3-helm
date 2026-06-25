@@ -143,8 +143,9 @@ portal:
       {
         "s3_bucket": "https://test-compose-gearbox-data-bucket-with-versioning.s3.amazonaws.com"
       }
-
+  documentRoot: /usr/share/nginx/html
   gearboxS3Bucket: "https://test-compose-gearbox-data-bucket-with-versioning.s3.amazonaws.com"
+
 
 revproxy:
   enabled: true

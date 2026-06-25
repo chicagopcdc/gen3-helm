@@ -567,3 +567,8 @@ portalBuild:
 
   extraction:
     stripComponents: true
+
+# -- (string) nginx document root. Must be set per environment:
+#   "/data-portal"           for the legacy data-portal image
+#   "/usr/share/nginx/html"  for gearbox-frontend
+documentRoot: ~
