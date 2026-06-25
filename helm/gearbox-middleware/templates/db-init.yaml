@@ -2,7 +2,10 @@
 {{- if and .Values.postgres .Values.postgres.chartNameOverride -}}
 {{- $chartNameOverride = .Values.postgres.chartNameOverride -}}
 {{- end -}}
-{{- $dbInitCtx := dict "root" . "chartNameOverride" $chartNameOverride -}}
+# {{- $dbInitCtx := dict "root" . "chartNameOverride" $chartNameOverride -}}
+{{- $dbInitCtx := deepCopy . -}}
+{{- $_ := set $dbInitCtx "chartNameOverride" $chartNameOverride -}}
+
 {{ include "common.db-secret" $dbInitCtx }}
 ---
 {{ include "common.db_setup_job" $dbInitCtx }}
