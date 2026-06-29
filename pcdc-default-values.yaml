@@ -81,6 +81,8 @@ arborist:
   image:
     repository: quay.io/pcdc/arborist
     tag: "2026.03"
+  authMappingProjectExclusion: "ARRAY['programs.pcdc.projects.20260414.%', 'programs.pcdc.projects.20260113.%', 'programs.pcdc.projects.20251014.%', 'programs.pcdc.projects.20250708.%', 'programs.pcdc.projects.20250408.%', 'programs.pcdc.projects.20250114.%', 'programs.pcdc.projects.20241008.%', 'programs.pcdc.projects.20240709.%', 'programs.pcdc.projects.20240409.%', 'programs.pcdc.projects.20240130.%', 'programs.pcdc.projects.20231114.%', 'programs.pcdc.projects.20230912.%', 'programs.pcdc.projects.20230523.%', 'programs.pcdc.projects.20230228.%', 'programs.pcdc.projects.20220808.%', 'programs.pcdc.projects.20220501_S01.%', 'programs.pcdc.projects.20220201.%', 'programs.pcdc.projects.20220110.%', 'programs.pcdc.projects.20211006.%', 'programs.pcdc.projects.20210915.%', 'programs.pcdc.projects.20210212.%']"
+
 
 amanuensis:
   enabled: true
