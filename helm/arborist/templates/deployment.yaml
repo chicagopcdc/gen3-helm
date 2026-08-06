@@ -88,6 +88,8 @@ spec:
           env:
 
             {{- toYaml .Values.env | nindent 12 }}
+            - name: AUTH_MAPPING_PROJECT_EXCLUSION
+              value: {{ .Values.authMappingProjectExclusion | quote }}
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
