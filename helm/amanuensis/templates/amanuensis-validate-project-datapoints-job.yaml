@@ -24,7 +24,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: DICTIONARY_URL
-              value: "https://portal.pedscommons.org/api/v0/submission/_dictionary/_all"
+              value: "{{ .Values.amanuensisJobs.dataDictionaryUrl }}"
             - name: OUTPUT_FILE
               value: "/tmp/data-dictionary/data_dictionary.json"
           volumeMounts:

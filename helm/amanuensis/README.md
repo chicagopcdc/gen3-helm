@@ -33,7 +33,7 @@ A Helm chart for gen3 Amanuensis
 | affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].operator | string | `"In"` | Operation type for the match expression. |
 | affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].values | list | `["amanuensis"]` | Value for the match expression key. |
 | affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.topologyKey | string | `"kubernetes.io/hostname"` | Value for topology key label. |
-| amanuensisJobs | map | `{"clearFilterSetCronjob":false,"dbMigrateJob":true,"validateFilterSetsJob":false,"validateProjectDatapointsJob":false}` | which amanuensis jobs to run |
+| amanuensisJobs | map | `{"clearFilterSetCronjob":false,"dataDictionaryUrl":"http://sheepdog-service/api/v0/submission/_dictionary/_all","dbMigrateJob":true,"validateFilterSetsJob":false,"validateProjectDatapointsJob":true}` | which amanuensis jobs to run |
 | args | list | `["-c","python /var/www/amanuensis/yaml_merge.py /var/www/amanuensis/amanuensis-config-public.yaml /var/www/amanuensis/amanuensis-config-secret.yaml /var/www/amanuensis/amanuensis-config.yaml\nif [[ -f /amanuensis/dockerrun.bash ]]; then bash /amanuensis/dockerrun.bash; elif [[ -f /dockerrun.sh ]]; then bash /dockerrun.sh; else echo 'Error: Neither /amanuensis/dockerrun.bash nor /dockerrun.sh exists.' >&2; exit 1; fi\n"]` | Default Command and arguments to run in the container. |
 | autoscaling | object | `{}` |  |
 | command | list | `["/bin/bash"]` | Override the default Command to run in the container. |

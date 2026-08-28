@@ -390,7 +390,15 @@ amanuensisJobs:
   clearFilterSetCronjob: false
   dbMigrateJob: true
   validateFilterSetsJob: false
-  validateProjectDatapointsJob: false
+  # on by default: the job exists to run when the data dictionary moves, and
+  # changing the dictionary is a helm upgrade, which re-runs the job
+  validateProjectDatapointsJob: true
+  # -- (string) Data dictionary the project datapoints are validated against.
+  # Defaults to the dictionary sheepdog is currently serving in this namespace,
+  # so each environment validates against its own dictionary. Do not point this
+  # at global.dictionaryUrl: that artifact leaves links as unresolved $ref, so
+  # every link-addressed value would be marked invalid. Sheepdog resolves them.
+  dataDictionaryUrl: "http://sheepdog-service/api/v0/submission/_dictionary/_all"
 
 # -- (list) Override the default Command to run in the container.
 command: ["/bin/bash"]
