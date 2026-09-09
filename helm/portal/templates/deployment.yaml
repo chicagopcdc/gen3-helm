@@ -279,10 +279,6 @@ spec:
             - name: PRIVACY_POLICY_URL
               value: {{ .Values.global.privacyPolicyURL | quote }}
             {{- end }}
-            {{- if .Values.global.geoapifyApiKey }}
-            - name: GEOAPIFY_API_KEY
-              value: {{ .Values.global.geoapifyApiKey | quote }}
-            {{- end }}
             {{- if .Values.global.deployProductionDataUrl }}
             - name: DEPLOY_PRODUCTION_DATA_URL
               value: {{ .Values.global.deployProductionDataUrl | quote }}
