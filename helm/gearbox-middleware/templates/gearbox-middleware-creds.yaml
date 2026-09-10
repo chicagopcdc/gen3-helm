@@ -11,4 +11,5 @@ stringData:
   gearbox-middleware.env: |
     S3_AWS_ACCESS_KEY_ID={{ .Values.gearboxMiddlewareG3auto.awsaccesskey }}
     S3_AWS_SECRET_ACCESS_KEY={{ .Values.gearboxMiddlewareG3auto.awssecretkey }}
+    GEOAPIFY_API_KEY={{ .Values.gearboxMiddlewareG3auto.geoapifyApiKey }}
 {{- end }}

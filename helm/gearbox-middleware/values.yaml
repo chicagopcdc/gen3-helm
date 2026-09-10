@@ -276,6 +276,8 @@ gearboxMiddlewareG3auto:
   awsaccesskey: ""
   # -- (string) AWS secret access key.
   awssecretkey: ""
+  # -- (string) Geoapify API key. Kept server-side so the key is never sent to the browser.
+  geoapifyApiKey: ""
 
 
 # Values to determine the labels that are used for the deployment, pod, etc.

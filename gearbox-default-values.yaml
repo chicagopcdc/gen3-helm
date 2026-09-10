@@ -171,6 +171,7 @@ gearbox-middleware:
   gearboxMiddlewareG3auto:
     awsaccesskey: "an_access_key"
     awssecretkey: "a_secret_key"
+    geoapifyApiKey: ""
 
 postgresql:
   image:
