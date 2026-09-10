@@ -460,6 +460,18 @@ spec:
             - name: PRIVACY_POLICY_URL
               value: {{ .Values.global.privacyPolicyURL | quote }}
             {{- end }}
+            {{- if .Values.global.geoapifyApiKey }}
+            - name: GEOAPIFY_API_KEY
+              value: {{ .Values.global.geoapifyApiKey | quote }}
+            {{- end }}
+            {{- if .Values.global.deployProductionDataUrl }}
+            - name: DEPLOY_PRODUCTION_DATA_URL
+              value: {{ .Values.global.deployProductionDataUrl | quote }}
+            {{- end }}
+            {{- if .Values.global.refreshProductionDataUrl }}
+            - name: REFRESH_PRODUCTION_DATA_URL
+              value: {{ .Values.global.refreshProductionDataUrl | quote }}
+            {{- end }}
             {{- if .Values.global.mapboxToken }}
             - name: MAPBOX_API_TOKEN
               value: {{ .Values.global.mapboxToken | quote }}
