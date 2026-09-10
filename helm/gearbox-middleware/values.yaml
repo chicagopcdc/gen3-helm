@@ -272,6 +272,8 @@ gearboxMiddlewareG3auto:
   dummyS3: True
   # -- (bool) Whether to allow for phi.
   enablePhi: False
+  # -- (string) Geoapify API key. Kept server-side so the key is never sent to the browser.
+  geoapifyApiKey: ""
   # -- (string) AWS access key.
   awsaccesskey: ""
   # -- (string) AWS secret access key.
