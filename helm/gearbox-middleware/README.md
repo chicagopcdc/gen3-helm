@@ -38,7 +38,7 @@ A Helm chart for Kubernetes
 | gearboxMiddlewareG3auto.debug | bool | `false` | Whether to run in debug mode. |
 | gearboxMiddlewareG3auto.forceIssuer | string | `true` | whether to use the userApi value when validating tokens. |
 | gearboxG3auto.enablePhi | bool | `false` | Whether to allow for phi. |
-| gearboxMiddlewareG3auto.geoapifyApiKey | string | `""` | Geoapify API key for the /address-autocomplete proxy. Set per environment; the portal no longer receives it. Left empty, no GEOAPIFY_API_KEY is rendered and address search returns 503. |
+| gearboxMiddlewareG3auto.geoapifyApiKey | string | `""` | Geoapify API key for the /address-autocomplete proxy. Kept server-side so the key is never sent to the browser. Left empty, address search returns 503. |
 | gearboxMiddlewareG3auto.testing | bool | `true` | Whether to set gearbox-middleware backend into testing mode. |
 | gearboxMiddlewareG3auto.userApi | string | `"http://fence-service/"` | url for fence. |
 | global.autoscaling.averageCPUValue | string | `"500m"` |  |

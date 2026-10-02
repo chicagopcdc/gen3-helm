@@ -272,7 +272,7 @@ gearboxMiddlewareG3auto:
   dummyS3: True
   # -- (bool) Whether to allow for phi.
   enablePhi: False
-  # -- (string) Geoapify API key for the /address-autocomplete proxy. Set per environment; the portal no longer receives it. Left empty, no GEOAPIFY_API_KEY is rendered and address search returns 503.
+  # -- (string) Geoapify API key for the /address-autocomplete proxy. Kept server-side so the key is never sent to the browser. Left empty, address search returns 503.
   geoapifyApiKey: ""
   # -- (string) AWS access key.
   awsaccesskey: ""
