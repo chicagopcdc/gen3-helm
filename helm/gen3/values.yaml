@@ -107,6 +107,7 @@ global:
   # geoapifyApiKey:
   # deployProductionDataUrl:
   # refreshProductionDataUrl:
+  # enhancedUi: "true"  # GEARBOx portal: enable the enhanced matching UI (runtime setting)
   # mapboxToken:
   # cookieDomain:
   # desNamespace:

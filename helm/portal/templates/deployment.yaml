@@ -287,6 +287,10 @@ spec:
             - name: REFRESH_PRODUCTION_DATA_URL
               value: {{ .Values.global.refreshProductionDataUrl | quote }}
             {{- end }}
+            {{- if .Values.global.enhancedUi }}
+            - name: REACT_APP_ENHANCED_UI
+              value: {{ .Values.global.enhancedUi | quote }}
+            {{- end }}
             {{- if .Values.global.mapboxToken }}
             - name: MAPBOX_API_TOKEN
               # Optional token for mapbox api
