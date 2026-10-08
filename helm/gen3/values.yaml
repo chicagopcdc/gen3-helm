@@ -104,6 +104,9 @@ global:
   # manifestServiceURL:
   # wtsURL:
   # privacyPolicyURL:
+  # geoapifyApiKey:
+  # deployProductionDataUrl:
+  # refreshProductionDataUrl:
   # mapboxToken:
   # cookieDomain:
   # desNamespace:
