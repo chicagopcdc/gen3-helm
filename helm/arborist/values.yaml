@@ -230,8 +230,8 @@ env:
   - name: JWKS_ENDPOINT
     value: "http://fence-service/.well-known/jwks"
 
-# -- (string) SQL ARRAY literal excluded from auth mapping queries 
-authMappingProjectExclusion: "ARRAY[]"
+# -- (string) SQL ARRAY literal of LIKE patterns excluded from auth mapping queries, e.g. "ARRAY['programs.pcdc.projects.20260414.%']". Leave empty to exclude nothing (arborist falls back to an empty typed array). An untyped "ARRAY[]" is invalid in Postgres.
+authMappingProjectExclusion: ""
 
 # Values to determine the labels that are used for the deployment, pod, etc.
 # -- (string) Valid options are "production" or "dev". If invalid option is set- the value will default to "dev".
