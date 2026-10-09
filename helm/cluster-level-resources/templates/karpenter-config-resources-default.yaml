@@ -32,24 +32,6 @@ spec:
       iops: {{ index .Values "karpenter-crds" "default" "fastImagePull" "iops" }}
       throughput: {{ index .Values "karpenter-crds" "default" "fastImagePull" "throughput" }}
 {{ end }}
-  {{- if semverCompare ">=1.0.8" .Values.karpenter.targetRevision }}
-  kubelet:
-    systemReserved:
-      cpu: 100m
-      memory: 256Mi
-    kubeReserved:
-      cpu: 100m
-      memory: 512Mi
-    evictionHard:
-      memory.available: 200Mi
-      nodefs.available: 10%
-    evictionSoft:
-      memory.available: 300Mi
-      nodefs.available: 15%
-    evictionSoftGracePeriod:
-      memory.available: 5m
-      nodefs.available: 5m
-  {{- end }}
   metadataOptions:
     httpEndpoint: enabled
     httpProtocolIPv6: disabled
