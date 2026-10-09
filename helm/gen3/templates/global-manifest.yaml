@@ -40,9 +40,6 @@ data:
   {{- if .Values.global.privacyPolicyURL }}
   "privacy_policy_url": {{ .Values.global.privacyPolicyURL | quote }}
   {{- end -}}
-  {{- if .Values.global.geoapifyApiKey }}
-  "geoapify_api_key": {{ .Values.global.geoapifyApiKey | quote }}
-  {{- end }}
   {{- if .Values.global.deployProductionDataUrl }}
   "deploy_production_data_url": {{ .Values.global.deployProductionDataUrl | quote }}
   {{- end }}

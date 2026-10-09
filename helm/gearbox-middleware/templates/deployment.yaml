@@ -70,8 +70,10 @@ spec:
               value: {{ .Values.gearboxMiddlewareG3auto.dummyS3 | quote }}
             - name: ENABLE_PHI
               value: {{ .Values.gearboxMiddlewareG3auto.enablePhi | quote }}
+            {{- if .Values.gearboxMiddlewareG3auto.geoapifyApiKey }}
             - name: GEOAPIFY_API_KEY
               value: {{ .Values.gearboxMiddlewareG3auto.geoapifyApiKey | quote }}
+            {{- end }}
             {{- with .Values.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
