@@ -15,6 +15,8 @@ global:
   frontendRoot: gen3ff
   # Runtime setting: enable the enhanced matching UI (REACT_APP_ENHANCED_UI)
   enhancedUi: "true"
+  # No auth filtering in guppy: the loaded docs have no auth_resource_path. Local testing only.
+  tierAccessLevel: libre
   # TODO: point to the data dictionary for this deployment
   dictionaryUrl: https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json
   # TODO: only if the dictionary entity is not "case"
@@ -83,6 +85,10 @@ fence:
         policies:
           - base_access
 
+
+pcdcanalysistools:
+  enabled: true
+
 indexd:
   enabled: false
   postgres:
@@ -92,7 +98,7 @@ metadata:
   enabled: false
 
 peregrine:
-  enabled: true
+  enabled: false
 
 sheepdog:
   enabled: true
@@ -101,20 +107,21 @@ pidgin:
   enabled: false
 
 guppy:
-  # Needs ES indices (dev_case, dev_file) from an ETL run; enable after loading data
-  enabled: false
+  # Indices copied from AWS OpenSearch (predict_test + predict_test-array-config)
+  enabled: true
+  indices:
+    - index: predict_test
+      type: subject
+  configIndex: predict_test-array-config
 
 frontend-framework:
   enabled: true
-  # TODO: custom image / config for this deployment
-  # image:
-  #   repository: quay.io/cdis/commons-frontend-app
-  #   tag: main
-  # customConfig:
-  #   enabled: true
-  #   repo: https://github.com/uc-cdis/commons-frontend-app.git
-  #   branch: main
-  #   dir: ""
+  # Explorer config for the predict_test index (config/ and public/ at the repo root)
+  customConfig:
+    enabled: true
+    repo: https://github.com/chicagopcdc/predict-gen3-portal.git
+    branch: main
+    dir: ""
 
 # Replaced by frontend-framework (global.frontendRoot: gen3ff). Set enabled: true and
 # frontendRoot: portal to go back to the data portal.
@@ -149,7 +156,7 @@ postgresql:
 elasticsearch:
   # Disabled for now: the portal's webpack build needs the memory on an 8GB Rancher VM.
   # Re-enable (and raise VM memory) when guppy/ETL is needed.
-  enabled: false
+  enabled: true
 
 # ---------------------------------------------------------------------------
 # Optional services (off by default here; flip to true as needed)
