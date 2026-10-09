@@ -28,24 +28,10 @@ spec:
       encrypted: true
       volumeSize: {{ index .Values "karpenter-crds" "default" "volumeSize" }}
       volumeType: gp3
-  {{- if semverCompare ">=1.0.8" .Values.karpenter.targetRevision }}
-  kubelet:
-    systemReserved:
-      cpu: 100m
-      memory: 256Mi
-    kubeReserved:
-      cpu: 100m
-      memory: 512Mi
-    evictionHard:
-      memory.available: 200Mi
-      nodefs.available: 10%
-    evictionSoft:
-      memory.available: 300Mi
-      nodefs.available: 15%
-    evictionSoftGracePeriod:
-      memory.available: 5m
-      nodefs.available: 5m
-  {{- end }}
+{{ if and (semverCompare ">=1.33" .Capabilities.KubeVersion.Version) (index .Values "karpenter-crds" "default" "fastImagePull" "enabled") }}
+      iops: {{ index .Values "karpenter-crds" "default" "fastImagePull" "iops" }}
+      throughput: {{ index .Values "karpenter-crds" "default" "fastImagePull" "throughput" }}
+{{ end }}
   metadataOptions:
     httpEndpoint: enabled
     httpProtocolIPv6: disabled
@@ -76,6 +62,18 @@ spec:
     sysctl -w fs.inotify.max_user_watches=12000 &
     systemctl stop firewalld
     systemctl disable firewalld
+{{ if and (semverCompare ">=1.33" .Capabilities.KubeVersion.Version) (index .Values "karpenter-crds" "default" "fastImagePull" "enabled") }}
+
+    --BOUNDARY
+    Content-Type: application/node.eks.aws
+
+    ---
+    apiVersion: node.eks.aws/v1alpha1
+    kind: NodeConfig
+    spec:
+      featureGates:
+        FastImagePull: true
+{{ end }}
 
     --BOUNDARY--
 {{- if semverCompare ">=1.0.8" .Values.karpenter.targetRevision }}

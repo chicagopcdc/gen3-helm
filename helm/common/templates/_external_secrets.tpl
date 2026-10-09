@@ -17,6 +17,13 @@
 {{- end -}}
 {{- end -}}
 
+{{/*
+  External Secrets API version. Defaults to v1beta1 unless explicitly overridden.
+*/}}
+{{- define "common.externalSecrets.apiVersion" -}}
+{{- default "external-secrets.io/v1beta1" .Values.global.externalSecrets.apiVersion -}}
+{{- end -}}
+
 
 
 
@@ -33,7 +40,7 @@
 {{- $chartName = .chartNameOverride -}}
 {{- end -}}
 {{- if and $ctx.Values.global.externalSecrets.deploy (not $ctx.Values.global.externalSecrets.createLocalK8sSecret) }}
-apiVersion: external-secrets.io/v1beta1
+apiVersion: {{ include "common.externalSecrets.apiVersion" $ctx }}
 kind: ExternalSecret
 metadata:
   name: {{ $chartName }}-dbcreds
@@ -59,7 +66,7 @@ spec:
 */}}
 {{- define "common.secretstore" -}}
 {{- if .Values.global.gcp.enabled }}
-apiVersion: external-secrets.io/v1beta1
+apiVersion: {{ include "common.externalSecrets.apiVersion" . }}
 kind: SecretStore
 metadata:
   name: {{.Chart.Name}}-secret-store
@@ -79,7 +86,7 @@ metadata:
   annotations:
     iam.gke.io/gcp-service-account: {{ .Values.global.gcp.secretStoreServiceAccount | quote }}
 {{- else }}
-apiVersion: external-secrets.io/v1beta1
+apiVersion: {{ include "common.externalSecrets.apiVersion" . }}
 kind: SecretStore
 metadata:
   name: {{.Chart.Name}}-secret-store

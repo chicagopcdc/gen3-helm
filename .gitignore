@@ -29,3 +29,7 @@ pcdc_data/external/external_reference.json  # External reference data file for P
 !helm/funnel/charts
 helm/funnel/charts/common*
 *copy.yaml
+
+# Python bytecode
+__pycache__/
+*.pyc
