@@ -6,6 +6,8 @@ global:
   authz_entity_name: "subject"
   tierAccessLevel: "granular"
   tierAccessLimit: "5"
+  # Runtime setting: enable the enhanced matching UI (REACT_APP_ENHANCED_UI)
+  enhancedUi: "true"
   arboristURL: "http://arborist-service/"
   manifestServiceURL: "http://manifestservice-service/"
   fenceURL: "http://fence-service/"
