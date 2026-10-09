@@ -4,6 +4,8 @@ global:
   portal_app: gitops
   dictionaryUrl: https://pcdc-gen3-dictionaries.s3.amazonaws.com/pcdc-schema-demo-amia.json
   authz_entity_name: "subject"
+  # Runtime setting: enable the enhanced matching UI (REACT_APP_ENHANCED_UI)
+  enhancedUi: "true"
 
   gearboxMatchingImage:
     repository: "quay.io/pcdc/gearbox_be"
@@ -20,6 +22,8 @@ arborist:
   image:
     repository: quay.io/pcdc/arborist
     tag: "2026.03"
+  # LIKE patterns excluded from auth mapping queries (AUTH_MAPPING_PROJECT_EXCLUSION)
+  authMappingProjectExclusion: "ARRAY['programs.pcdc.projects.20260414.%']"
 
 fence:
   #local Dev Only
