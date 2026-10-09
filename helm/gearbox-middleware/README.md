@@ -38,6 +38,7 @@ A Helm chart for Kubernetes
 | gearboxMiddlewareG3auto.debug | bool | `false` | Whether to run in debug mode. |
 | gearboxMiddlewareG3auto.forceIssuer | string | `true` | whether to use the userApi value when validating tokens. |
 | gearboxG3auto.enablePhi | bool | `false` | Whether to allow for phi. |
+| gearboxG3auto.geoapifyApiKey | string | `""` | API key for geoapify API to retrieve alat lon for addresses. |
 | gearboxMiddlewareG3auto.testing | bool | `true` | Whether to set gearbox-middleware backend into testing mode. |
 | gearboxMiddlewareG3auto.userApi | string | `"http://fence-service/"` | url for fence. |
 | global.autoscaling.averageCPUValue | string | `"500m"` |  |

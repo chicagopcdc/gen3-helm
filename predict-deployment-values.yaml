@@ -1,0 +1,187 @@
+# Values for a new local/dev Gen3 deployment, based on upstream uc-cdis defaults
+# (helm/gen3/values.yaml) and examples/local_dev_values.yaml.
+# Only overrides are listed here; everything else falls through to chart defaults.
+#
+# Usage:
+#   helm upgrade --install gen3 ./helm/gen3 -f predict-deployment-values.yaml -f secret-values.yaml -n <namespace>
+
+global:
+  # Deploys in-cluster postgres/elasticsearch. Local dev only.
+  dev: true
+  hostname: localhost
+  # Must be "pcdc": this fork's portal chart mounts the config at data/config/pcdc.json
+  portalApp: pcdc
+  # Which app revproxy serves on "/": "portal" (data portal) or "gen3ff" (frontend-framework)
+  frontendRoot: gen3ff
+  # Runtime setting: enable the enhanced matching UI (REACT_APP_ENHANCED_UI)
+  enhancedUi: "true"
+  # No auth filtering in guppy: the loaded docs have no auth_resource_path. Local testing only.
+  tierAccessLevel: libre
+  # TODO: point to the data dictionary for this deployment
+  dictionaryUrl: https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json
+  # TODO: only if the dictionary entity is not "case"
+  # authz_entity_name: "subject"
+  postgres:
+    dbCreate: true
+    master:
+      username: postgres
+      port: "5432"
+
+# ---------------------------------------------------------------------------
+# Core services
+# ---------------------------------------------------------------------------
+arborist:
+  enabled: true
+  # LIKE patterns excluded from auth mapping queries (AUTH_MAPPING_PROJECT_EXCLUSION)
+  authMappingProjectExclusion: "ARRAY['programs.pcdc.projects.20260414.%']"
+  # Local dev only
+  postgres:
+    password: "arborist_thisisaweakpassword"
+
+fence:
+  enabled: true
+  # Local dev only
+  postgres:
+    password: "fence_thisisaweakpassword"
+  FENCE_CONFIG:
+    DEBUG: true
+    MOCK_STORAGE: true
+    MOCK_GOOGLE_AUTH: true
+    mock_default_user: "test@example.com"
+    # TODO: real IdP / buckets for non-mock setups
+    # OPENID_CONNECT:
+    #   google:
+    #     client_id: ""
+    #     client_secret: ""
+    # AWS_CREDENTIALS:
+    #   'fence-bot':
+    #     aws_access_key_id: ''
+    #     aws_secret_access_key: ''
+    # S3_BUCKETS:
+    #   my-bucket:
+    #     cred: 'fence-bot'
+    #     region: us-east-1
+    # DATA_UPLOAD_BUCKET: 'my-bucket'
+  # TODO: replace with this deployment's authz resources/policies/users
+  USER_YAML: |
+    authz:
+      resources:
+        - name: portal
+          description: data portal service
+      policies:
+        - id: base_access
+          resource_paths: ['/portal']
+          role_ids: ['base_access']
+      roles:
+        - id: base_access
+          permissions:
+            - id: base_read
+              action:
+                service: '*'
+                method: 'read'
+    users:
+      test@example.com:
+        admin: true
+        policies:
+          - base_access
+
+
+pcdcanalysistools:
+  enabled: true
+
+indexd:
+  enabled: false
+  postgres:
+    password: "indexd_thisisaweakpassword"
+
+metadata:
+  enabled: false
+
+peregrine:
+  enabled: false
+
+sheepdog:
+  enabled: true
+
+pidgin:
+  enabled: false
+
+guppy:
+  # Indices copied from AWS OpenSearch (predict_test + predict_test-array-config)
+  enabled: true
+  indices:
+    - index: predict_test
+      type: subject
+  configIndex: predict_test-array-config
+
+frontend-framework:
+  enabled: true
+  # Explorer config for the predict_test index (config/ and public/ at the repo root)
+  customConfig:
+    enabled: true
+    repo: https://github.com/chicagopcdc/predict-gen3-portal.git
+    branch: main
+    dir: ""
+
+# Replaced by frontend-framework (global.frontendRoot: gen3ff). Set enabled: true and
+# frontendRoot: portal to go back to the data portal.
+portal:
+  enabled: false
+  # /data-portal for the standard portal, /usr/share/nginx/html for gearbox-frontend
+  documentRoot: /data-portal
+  resources:
+    requests:
+      cpu: 0.2
+      memory: 500Mi
+  # TODO: custom image / gitops config for this deployment
+  # image:
+  #   repository: quay.io/cdis/data-portal
+  #   tag: master
+  # gitops:
+  #   json: |
+  #     {}
+
+revproxy:
+  enabled: true
+
+postgresql:
+  # Local dev only
+  auth:
+    postgresPassword: "thisisaterriblepassword"
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+
+elasticsearch:
+  # Disabled for now: the portal's webpack build needs the memory on an 8GB Rancher VM.
+  # Re-enable (and raise VM memory) when guppy/ETL is needed.
+  enabled: true
+
+# ---------------------------------------------------------------------------
+# Optional services (off by default here; flip to true as needed)
+# ---------------------------------------------------------------------------
+ambassador:
+  enabled: false
+amanuensis:
+  enabled: false
+argo-wrapper:
+  enabled: false
+audit:
+  enabled: false
+aws-es-proxy:
+  enabled: false
+gearbox:
+  enabled: false
+gearbox-middleware:
+  enabled: false
+cohort-middleware:
+  enabled: false
+hatchery:
+  enabled: false
+manifestservice:
+  enabled: false
+sower:
+  enabled: false
+wts:
+  enabled: false

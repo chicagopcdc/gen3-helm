@@ -12,7 +12,8 @@ Chart.lock
 # macOS system file (usually ignored)
 .DS_Store  
 # Helm secrets/values file                                 
-secret-values.yaml                          
+secret-values.yaml     
+secret-values.yaml.*                     
 # Environment variables
 .env                                        
 # Instance generated service account or credentials

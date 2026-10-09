@@ -69,7 +69,8 @@ spec:
       containers:
       - name: db-setup
         # TODO: READ THIS IMAGE FROM GLOBAL VALUES?
-        image: quay.io/cdis/awshelper:master
+        # image: '{{ .Values.global.awshelper_container_image | default "quay.io/cdis/awshelper:master" }}'
+        image: '{{ $ctx.Values.global.awshelper_container_image | default "quay.io/cdis/awshelper:master" }}'
         imagePullPolicy: Always
         command: ["/bin/bash", "-c"]
         env:
@@ -146,8 +147,8 @@ spec:
             #!/bin/bash
             set -e
 
-            source "${GEN3_HOME}/gen3/lib/utils.sh"
-            gen3_load "gen3/gen3setup"
+            # source "${GEN3_HOME}/gen3/lib/utils.sh"
+            # gen3_load "gen3/gen3setup"
 
             echo "PGHOST=$PGHOST"
             echo "PGPORT=$PGPORT"
@@ -164,7 +165,8 @@ spec:
             >&2 echo "Postgres is up - executing command"
 
             if psql -lqt | cut -d \| -f 1 | grep -qw $SERVICE_PGDB; then
-              gen3_log_info "Database exists"
+              # gen3_log_info "Database exists"
+              echo "Database exists"
               PGPASSWORD=$SERVICE_PGPASS psql -d $SERVICE_PGDB -h $PGHOST -p $PGPORT -U $SERVICE_PGUSER -c "\conninfo"
               kubectl patch secret/{{ $chartName }}-dbcreds -p '{"data":{"dbcreated":"dHJ1ZQo="}}'
             else

@@ -87,6 +87,36 @@ After configuration is complete, take note of the client ID that was created. Yo
 
 * If deploying from the local repo, make sure you followed the steps for `helm dependency update`. If you make any changes, this must be repeated for those changes to propagate.
 
+* Make sure `kubectl` and `helm` are pointed at the right cluster. Both use your current kubeconfig context, so if you were last working against OpenShift you will see errors like `dial tcp: lookup api.bsd-openshift-prod.bsd.uchicago.edu: no such host` (that host only resolves on the campus network/VPN).
+
+### Switching to a local Kubernetes cluster for local dev
+
+```
+# list available contexts and see which one is active (marked with *)
+kubectl config get-contexts
+
+# switch to your local cluster (use the name shown above)
+kubectl config use-context docker-desktop    # Docker Desktop
+kubectl config use-context minikube          # minikube
+kubectl config use-context kind-kind         # kind
+kubectl config use-context rancher-desktop   # Rancher Desktop
+
+# verify
+kubectl config current-context
+kubectl get nodes
+```
+
+If no local context is listed, start/enable a local cluster first:
+* Docker Desktop: Settings > Kubernetes > Enable Kubernetes
+* minikube: `minikube start`
+* kind: `kind create cluster`
+
+You can also target a cluster for a single command without switching: `helm upgrade --install gen3 ./helm/gen3 -f ./values.yaml --kube-context docker-desktop`
+
+Use your local values file for local dev, not an OpenShift-specific one (e.g. `secret-values.yaml.openshift`). OpenShift-specific settings such as security contexts, routes, and storage classes may not work locally.
+
+To go back to OpenShift, connect to the VPN and run `kubectl config use-context <openshift-context>` (or `oc login`).
+
 ## Debugging helm chart issues
 
 * Sometimes there are cryptic errors that occur during use of the helm chart, such as duplicate env vars or other items. Try rendering the resources to a file, in debug mode, and it will help determine where the issues may be taking place

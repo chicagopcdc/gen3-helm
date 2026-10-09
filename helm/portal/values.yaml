@@ -156,6 +156,7 @@ service:
   type: ClusterIP
   # -- (int) The port number that the service exposes.
   port: 80
+  targetPort: 80
 
 # -- (map) Node selector to apply to the pod
 nodeSelector: {}
@@ -547,6 +548,7 @@ portalBuild:
     mountOptions:
     - allow-delete
     - region us-east-1
+    - allow-other
     kmsKeyArn: ""
     size: 1Gi
     cache:
@@ -565,3 +567,8 @@ portalBuild:
 
   extraction:
     stripComponents: true
+
+# -- (string) nginx document root. Must be set per environment:
+#   "/data-portal"           for the legacy data-portal image
+#   "/usr/share/nginx/html"  for gearbox-frontend
+documentRoot: ~
