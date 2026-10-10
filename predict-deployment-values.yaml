@@ -19,8 +19,10 @@ global:
   tierAccessLevel: libre
   # TODO: point to the data dictionary for this deployment
   dictionaryUrl: https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json
-  # TODO: only if the dictionary entity is not "case"
-  # authz_entity_name: "subject"
+  # Must be set: sheepdog requires AUTHZ_ENTITY_NAME from manifest-global, and an unset value
+  # renders as null so the key is dropped. Should match the entity name in the dictionary above
+  # (the develop dictionary uses "case"; the loaded predict index uses "subject").
+  authz_entity_name: "subject"
   postgres:
     dbCreate: true
     master:
