@@ -23,6 +23,8 @@ global:
   # renders as null so the key is dropped. Should match the entity name in the dictionary above
   # (the develop dictionary uses "case"; the loaded predict index uses "subject").
   authz_entity_name: "subject"
+  # Lands in manifest-global as arborist_url; services such as gen3-user-data-library read it
+  arboristURL: "http://arborist-service/"
   postgres:
     dbCreate: true
     master:
@@ -36,6 +38,12 @@ arborist:
   enabled: true
   # LIKE patterns excluded from auth mapping queries (AUTH_MAPPING_PROJECT_EXCLUSION)
   authMappingProjectExclusion: "ARRAY['programs.pcdc.projects.20260414.%']"
+  # Pinned release tag (multi-arch): quay.io/cdis/arborist:master crashed repeatedly on the local
+  # arm64 Rancher Desktop VM ("fatal error: fault", "growslice: len out of range") while
+  # verifying tokens. Revert to the chart default if master becomes stable again.
+  image:
+    repository: quay.io/cdis/arborist
+    tag: "2026.10"
   # Local dev only
   postgres:
     password: "arborist_thisisaweakpassword"
@@ -81,6 +89,27 @@ fence:
               action:
                 service: '*'
                 method: 'read'
+        # Required by gen3-user-data-library: it creates a per-user policy that references this
+        # role (https://github.com/uc-cdis/gen3-user-data-library#readme).
+        - id: library_owner
+          description: ''
+          permissions:
+            - id: library_reader
+              action:
+                method: read
+                service: 'gen3-user-data-library'
+            - id: library_creator
+              action:
+                method: create
+                service: 'gen3-user-data-library'
+            - id: library_updater
+              action:
+                method: update
+                service: 'gen3-user-data-library'
+            - id: library_deleter
+              action:
+                method: delete
+                service: 'gen3-user-data-library'
     users:
       test@example.com:
         admin: true
@@ -116,13 +145,27 @@ guppy:
       type: subject
   configIndex: predict_test-array-config
 
+# Server-side storage for the explorer's saved cohorts / data library lists (served at /library).
+# Needs dataLibrary.json "useAPI": true in the frontend config.
+gen3-user-data-library:
+  enabled: true
+  # Local dev only
+  postgres:
+    password: "userdatalibrary_thisisaweakpassword"
+  # LOCAL DEV ONLY: lets the library fetch fence's signing keys from https://localhost/user
+  # (see localIssuerProxy in helm/gen3-user-data-library/values.yaml). Remove this block, or set
+  # enabled: false, for any deployment whose hostname resolves from inside the cluster (cloud).
+  localIssuerProxy:
+    enabled: true
+
 frontend-framework:
   enabled: true
   # Explorer config for the predict_test index (config/ and public/ at the repo root)
   customConfig:
     enabled: true
     repo: https://github.com/chicagopcdc/predict-gen3-portal.git
-    branch: main
+    # Test branch with dataLibrary.json useAPI=true; switch back to main once merged
+    branch: data-library-api
     dir: ""
 
 # Replaced by frontend-framework (global.frontendRoot: gen3ff). Set enabled: true and
