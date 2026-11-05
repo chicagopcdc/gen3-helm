@@ -15,8 +15,9 @@ global:
   frontendRoot: gen3ff
   # Runtime setting: enable the enhanced matching UI (REACT_APP_ENHANCED_UI)
   enhancedUi: "true"
-  # No auth filtering in guppy: the loaded docs have no auth_resource_path. Local testing only.
-  tierAccessLevel: libre
+  # guppy returns only docs whose auth_resource_path is covered by the user's arborist policies.
+  # All docs in predict_test carry auth_resource_path "/predict" (see predict_access policy below).
+  tierAccessLevel: regular
   # TODO: point to the data dictionary for this deployment
   dictionaryUrl: https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json
   # Must be set: sheepdog requires AUTHZ_ENTITY_NAME from manifest-global, and an unset value
@@ -78,9 +79,14 @@ fence:
       resources:
         - name: portal
           description: data portal service
+        - name: predict
+          description: all PREDICT records (auth_resource_path of every doc in the ES index)
       policies:
         - id: base_access
           resource_paths: ['/portal']
+          role_ids: ['base_access']
+        - id: predict_access
+          resource_paths: ['/predict']
           role_ids: ['base_access']
       roles:
         - id: base_access
@@ -115,6 +121,7 @@ fence:
         admin: true
         policies:
           - base_access
+          - predict_access
 
 
 pcdcanalysistools:
@@ -131,8 +138,10 @@ metadata:
 peregrine:
   enabled: false
 
+# Disabled: not needed (ES is loaded directly; no graph DB / ETL). Its dbcreate also failed against
+# a stale sheepdog_gen3 postgres role left in the persistent volume.
 sheepdog:
-  enabled: true
+  enabled: false
 
 pidgin:
   enabled: false
@@ -164,8 +173,8 @@ frontend-framework:
   customConfig:
     enabled: true
     repo: https://github.com/chicagopcdc/predict-gen3-portal.git
-    # Test branch with dataLibrary.json useAPI=true; switch back to main once merged
-    branch: data-library-api
+    # main has dataLibrary.json useAPI=false (library API off). data-library-api has useAPI=true.
+    branch: main
     dir: ""
 
 # Replaced by frontend-framework (global.frontendRoot: gen3ff). Set enabled: true and
