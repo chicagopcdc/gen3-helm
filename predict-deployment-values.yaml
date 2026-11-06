@@ -147,6 +147,10 @@ pidgin:
   enabled: false
 
 guppy:
+  # PCDC fork image (nested numeric aggregation fixes); quay.io/cdis/guppy:master does not have them.
+  image:
+    repository: quay.io/pcdc/guppy
+    tag: "pcdc_dev_2026-11-05T20_05_13-06_00"
   # Indices copied from AWS OpenSearch (predict_test + predict_test-array-config)
   enabled: true
   indices:
