@@ -53,8 +53,8 @@ spec:
       serviceAccountName: {{ .Chart.Name }}-jwt-public-key-patch-sa
       containers:
       - name: public-key-gen
-        image: quay.io/cdis/awshelper:master
-        imagePullPolicy: Always
+        image: bitnamisecure/kubectl:latest
+        imagePullPolicy: IfNotPresent
         env:
           - name: PRIVATE_KEY_PEM
             valueFrom:
@@ -64,6 +64,8 @@ spec:
                 optional: false
           - name: SERVICE
             value: {{ .Chart.Name }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
         command: ["/bin/sh", "-c"]
         args:
           - |

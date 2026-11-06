@@ -184,6 +184,7 @@ service:
   targetPort: 80
   # -- (int) The port number that the service exposes.
   port: 80
+  targetPort: 80
 
 # -- (map) Configuration for network policies created by this chart. Only relevant if "global.netPolicy.enabled" is set to true
 netPolicy:

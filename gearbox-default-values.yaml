@@ -1,8 +1,7 @@
+# Global configuration
 global:
-  dev: true
-  hostname: localhost
+  dev: false
   portal_app: gitops
-  dictionaryUrl: https://pcdc-gen3-dictionaries.s3.amazonaws.com/pcdc-schema-demo-amia.json
   authz_entity_name: "subject"
   # Runtime setting: enable the enhanced matching UI (REACT_APP_ENHANCED_UI)
   enhancedUi: "true"
@@ -16,9 +15,28 @@ global:
     # pullPolicy: Never
 
 arborist:
-  #local Dev Only
+  enabled: true
   postgres:
     password: "arborist_thisisaweakpassword"
+  imagePullSecrets:
+    - name: ecr-pull-secret
+  # autoscaling:
+  #   averageCPUValue: 300m
+  #   averageMemoryValue: 256Mi
+  # -- (map) Resource requests and limits for the containers in the pod
+  # resources:
+  #   # -- (map) The amount of resources that the container requests
+  #   requests:
+  #     # -- (string) The amount of memory requested
+  #     memory: 12Mi
+  #     # -- (string) The amount of CPU requested (e.g., 100m = 0.1 CPU)
+  #     cpu: 100m
+  #   # -- (map) The maximum amount of resources that the container is allowed to use
+  #   limits:
+  #     # -- (string) The maximum amount of memory the container can use
+  #     memory: 512Mi
+  #     # -- (string) The maximum amount of CPU the container can use
+  #     cpu: 500m
   image:
     repository: quay.io/pcdc/arborist
     tag: "2026.03"
@@ -26,7 +44,13 @@ arborist:
   authMappingProjectExclusion: "ARRAY['programs.pcdc.projects.20260414.%']"
 
 fence:
-  #local Dev Only
+  enabled: true
+  # replicaCount: 2
+  # autoscaling:
+  #   averageCPUValue: 300m
+  #   averageMemoryValue: 256Mi
+  imagePullSecrets:
+    - name: ecr-pull-secret
   postgres:
     password: "fence_thisisaweakpassword"
   FENCE_CONFIG:
@@ -139,9 +163,23 @@ portal:
     repository: "quay.io/pcdc/gearbox_fe"
     tag: "dev"
     pullPolicy: Always
-  resources:
-    requests:
-      cpu: 1.0
+  # -- (map) Resource requests and limits for the containers in the pod
+  # resources:
+  #   # -- (map) The amount of resources that the container requests
+  #   requests:
+  #     memory: 12Mi
+  #     # -- (string) The amount of CPU requested (e.g., 100m = 0.1 CPU)
+  #     cpu: 100m
+  #   limits:
+  #     cpu: 2.0
+  #     memory: 4096Mi
+  #   # -- (map) The maximum amount of resources that the container is allowed to use
+  service:
+    # -- (string) Type of service. Valid values are "ClusterIP", "NodePort", "LoadBalancer", "ExternalName".
+    type: ClusterIP
+    # -- (int) The port number that the service exposes.
+    port: 80
+    targetPort: 8080
   gitops:
     json: |
       {
@@ -153,6 +191,16 @@ portal:
 
 revproxy:
   enabled: true
+  # -- (int) Number of replicas for the deployment.
+  # replicaCount: 2
+  nginx:
+    user: "nginx"
+    resolver: "dns-default.openshift-dns.svc.cluster.local"
+    pidFile: "/tmp/nginx.pid"
+  service:
+    # -- (string) Type of service. Valid values are "ClusterIP", "NodePort", "LoadBalancer", "ExternalName".
+    type: ClusterIP
+    targetPort: 8080
   image:
     repository: "quay.io/cdis/nginx"
     tag: "2026.04"
@@ -180,13 +228,25 @@ gearbox-middleware:
 postgresql:
   image:
     repository: bitnamilegacy/postgresql
-  #local Dev Only
-  auth:
-    postgresPassword: "thisisaterriblepassword"
+  readReplicas:
+    networkPolicy:
+      enabled: false
   primary:
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 512Mi
+    networkPolicy:
+      enabled: false
     persistence:
       enabled: true
       size: 1Gi
+  enabled: false
+  auth:
+    postgresPassword: "thisisaterriblepassword"
 ########################################################################################
 #                               DISABLED SERVICES                                      #
 ########################################################################################
@@ -247,4 +307,10 @@ hatchery:
   enabled: false
 
 cohort-middleware:
+  enabled: false
+
+etl:
+  enabled: false
+
+gen3-network-policies:
   enabled: false

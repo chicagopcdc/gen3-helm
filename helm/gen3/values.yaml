@@ -436,6 +436,7 @@ access-backend:
 # -- (map) To configure postgresql subchart
 # Disable persistence by default so we can spin up and down ephemeral environments
 postgresql:
+  enabled: true
   image:
     registry: quay.io
     repository: "cdis/docker-bitnami-pgvector"

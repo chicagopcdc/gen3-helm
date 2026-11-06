@@ -77,6 +77,8 @@ spec:
         image: '{{ $ctx.Values.global.awshelper_container_image | default "quay.io/cdis/amazonlinux-psql:hardened" }}'
         imagePullPolicy: Always
         command: ["/bin/bash", "-c"]
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
         env:
           - name: PGPASSWORD
             {{- if $ctx.Values.global.dev }}

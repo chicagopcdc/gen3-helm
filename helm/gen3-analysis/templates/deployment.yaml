@@ -102,6 +102,7 @@ spec:
           ports:
             - containerPort: {{ .Values.service.targetPort }}
               name: http
+          {{- with .Values.volumeMounts }}
           volumeMounts:
             {{- if .Values.s3DataMount.enabled }}
             - name: tmp-volume

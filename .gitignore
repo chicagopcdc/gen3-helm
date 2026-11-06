@@ -22,8 +22,13 @@ temp.yaml
 # Main Helm values file
 /values.yaml                               
 postgres.txt
-pcdc_data/external/external_reference.json  # External reference data file for PCDC
-
+# External reference data file for PCDC
+pcdc_data/external/external_reference.json  
+# Script that creates external secrets IAM user
+external_secrets.bash
+secret-gearbox-default-values.yaml
+secret-openshift-gearbox-default-values.yaml
+secret-pcdc-default-values.yaml
 
 # exception: do not ignore the `helm/funnel/charts/funnel*` file
 !helm/funnel/charts
@@ -33,3 +38,12 @@ helm/funnel/charts/common*
 # Python bytecode
 __pycache__/
 *.pyc
+
+# PREDICT local data (keep predict_data/old/ and scripts tracked)
+predict_data/*.ndjson
+predict_data/*.json
+
+
+.python-version
+# Python version pin (local)
+.python-version

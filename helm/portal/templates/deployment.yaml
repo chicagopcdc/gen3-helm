@@ -81,6 +81,10 @@ spec:
           optional: true
       - name: extra-images
         emptyDir: {}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       initContainers:
       {{- if .Values.extraImages }}
         - name: init
@@ -218,10 +222,10 @@ spec:
               {{- else }}
               path: /
               {{- end }}
-              port: 80 #http
-            initialDelaySeconds: 30 #5
-            periodSeconds: 60  #10
-            timeoutSeconds: 60  #30
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 60
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           ports:
@@ -363,6 +367,12 @@ spec:
             - name: "config-volume"
               mountPath: "/data-portal/data/config/pcdc.json"
               subPath: "gitops.json"
+            # - name: "nginx-config"
+            #   mountPath: "/etc/nginx/conf.d/nginx.conf"
+            #   subPath: "nginx.conf"
+            # - name: "nginx-config"
+            #   mountPath: "/etc/nginx/nginx.conf"
+            #   subPath: "main"
             - name: "config-volume"
               mountPath: "/data-portal/custom/logo/gitops-logo.png"
               subPath: "gitops-logo.png"

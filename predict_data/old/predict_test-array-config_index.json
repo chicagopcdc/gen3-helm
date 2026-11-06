@@ -1,0 +1,1 @@
+{"predict_test-array-config":{"aliases":{},"mappings":{"properties":{"array":{"type":"keyword"},"timestamp":{"type":"date"}}},"settings":{"index":{"mapping":{"total_fields":{"limit":"2000"}},"number_of_shards":"1","provided_name":"predict_test-array-config","creation_date":"1790612466184","number_of_replicas":"1","uuid":"UNzJERsiROmdDreJFJaJdg","version":{"created":"7100299"}}}}}

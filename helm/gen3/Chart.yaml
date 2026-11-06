@@ -195,7 +195,7 @@ dependencies:
   - name: postgresql
     version: 11.8.*
     repository: "https://charts.bitnami.com/bitnami"
-    condition: global.dev
+    condition: postgresql.enabled
 
   # (optional) NeuVector Kubernetes Security Policy templates to protect Gen3
   #   NeuVector must be installed separately.
