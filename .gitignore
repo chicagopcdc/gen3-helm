@@ -45,3 +45,5 @@ predict_data/*.json
 
 
 .python-version
+# Python version pin (local)
+.python-version
