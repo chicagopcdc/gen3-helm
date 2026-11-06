@@ -42,3 +42,6 @@ __pycache__/
 # PREDICT local data (keep predict_data/old/ and scripts tracked)
 predict_data/*.ndjson
 predict_data/*.json
+
+
+.python-version
