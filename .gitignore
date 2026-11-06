@@ -38,3 +38,7 @@ helm/funnel/charts/common*
 # Python bytecode
 __pycache__/
 *.pyc
+
+# PREDICT local data (keep predict_data/old/ and scripts tracked)
+predict_data/*.ndjson
+predict_data/*.json
