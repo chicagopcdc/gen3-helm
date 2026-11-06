@@ -15,8 +15,12 @@ spec:
   amiFamily: AL2
   {{- end }}
   amiSelectorTerms:
+  {{- if not (index .Values "karpenter-crds" "useAlias") }}
   - name: {{ index .Values "karpenter-crds" "amiSelectorName" }}
     owner: {{ index .Values "karpenter-crds" "amiOwner" | quote }}
+  {{- else }}
+  - alias: {{ index .Values "karpenter-crds" "alias" | quote }}
+  {{- end }}
   blockDeviceMappings:
   - deviceName: /dev/xvda
     ebs:
@@ -24,27 +28,27 @@ spec:
       encrypted: true
       volumeSize: {{ index .Values "karpenter-crds" "default" "volumeSize" }}
       volumeType: gp3
+{{ if and (semverCompare ">=1.33" .Capabilities.KubeVersion.Version) (index .Values "karpenter-crds" "default" "fastImagePull" "enabled") }}
+      iops: {{ index .Values "karpenter-crds" "default" "fastImagePull" "iops" }}
+      throughput: {{ index .Values "karpenter-crds" "default" "fastImagePull" "throughput" }}
+{{ end }}
   metadataOptions:
     httpEndpoint: enabled
     httpProtocolIPv6: disabled
     httpPutResponseHopLimit: 2
     httpTokens: optional
   role: eks_{{ index .Values "karpenter-crds" "selectorTag" }}_workers_role
-
   securityGroupSelectorTerms:
   - tags:
       karpenter.sh/discovery: {{ index .Values "karpenter-crds" "selectorTag" }}
-
   subnetSelectorTerms:
   - tags:
       karpenter.sh/discovery: {{ index .Values "karpenter-crds" "selectorTag" }}
-
   tags:
     Environment: {{ .Values.cluster }}
     Name: eks-{{ .Values.cluster }}-karpenter
     karpenter.sh/discovery: {{ index .Values "karpenter-crds" "selectorTag" }}
     purpose: default
-
   userData: |
     MIME-Version: 1.0
     Content-Type: multipart/mixed; boundary="BOUNDARY"
@@ -56,6 +60,20 @@ spec:
     echo "$(jq '.registryPullQPS=0' /etc/kubernetes/kubelet/kubelet-config.json)" > /etc/kubernetes/kubelet/kubelet-config.json
     curl https://raw.githubusercontent.com/uc-cdis/cloud-automation/master/files/authorized_keys/ops_team >> /home/ec2-user/.ssh/authorized_keys &
     sysctl -w fs.inotify.max_user_watches=12000 &
+    systemctl stop firewalld
+    systemctl disable firewalld
+{{ if and (semverCompare ">=1.33" .Capabilities.KubeVersion.Version) (index .Values "karpenter-crds" "default" "fastImagePull" "enabled") }}
+
+    --BOUNDARY
+    Content-Type: application/node.eks.aws
+
+    ---
+    apiVersion: node.eks.aws/v1alpha1
+    kind: NodeConfig
+    spec:
+      featureGates:
+        FastImagePull: true
+{{ end }}
 
     --BOUNDARY--
 {{- if semverCompare ">=1.0.8" .Values.karpenter.targetRevision }}
@@ -66,6 +84,9 @@ spec:
       memory.available: 10%
     evictionSoftGracePeriod:
       memory.available: 5m
+    {{- if .Values.cilium.enabled }}
+    maxPods: 2000
+    {{- end }}
 {{- end }}
 ---
 {{- if semverCompare ">=1.0.8" .Values.karpenter.targetRevision }}
@@ -87,13 +108,11 @@ spec:
       terminationGracePeriod: 48h
       requirements:
       {{ toYaml (index .Values "karpenter-crds" "default" "requirements") | nindent 6 }}
-
   disruption:
     consolidateAfter: {{ index .Values "karpenter-crds" "default" "consolidateAfter" }}
     consolidationPolicy: {{ index .Values "karpenter-crds" "default" "consolidationPolicy" }}
     budgets:
     - nodes: {{ index .Values "karpenter-crds" "default" "disruptionBudget" }}
-
   limits:
     cpu: {{ index .Values "karpenter-crds" "default" "limits" "cpu" }}
     memory: {{ index .Values "karpenter-crds" "default" "limits" "memory" }}

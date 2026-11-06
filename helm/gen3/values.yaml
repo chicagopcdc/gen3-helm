@@ -7,6 +7,9 @@ global:
   # -- (map) GCP configuration
   gcp:
     enabled: false
+    secretStoreServiceAccount: "GCP_SA@PROJECT_ID.iam.gserviceaccount.com"
+    projectID: "project-name"
+
   # -- (map) AWS configuration
   aws:
     # -- (string) AWS region for this deployment
@@ -94,13 +97,16 @@ global:
   workspaceTimeoutInMinutes: 480
   maintenanceMode: "off"
   dataUploadBucket:
-  # fenceURL:
+  # fenceURL: "http://fence-service"
   # arboristURL:
   # indexdURL:
   # workspaceURL:
   # manifestServiceURL:
   # wtsURL:
   # privacyPolicyURL:
+  # deployProductionDataUrl:
+  # refreshProductionDataUrl:
+  # enhancedUi: "true"  # GEARBOx portal: enable the enhanced matching UI (runtime setting)
   # mapboxToken:
   # cookieDomain:
   # desNamespace:
@@ -109,9 +115,8 @@ global:
   netPolicy:
     # -- (bool) Whether network policies are enabled
     enabled: false
-
     # -- (array) A CIDR range representing a database subnet, that services with a database need access to
-    dbSubnet: ""
+    dbSubnets: []
   # -- (int) Number of dispatcher jobs.
   dispatcherJobNum: "10"
   # -- (bool) If the service will be deployed with a Pod Disruption Budget. Note- you need to have more than 2 replicas for the pdb to be deployed.
@@ -124,9 +129,15 @@ global:
   createSlackWebhookSecret: false
   # -- (string) slack webhook for notifications
   slackWebhook: ""
+  # -- (bool) Will create the gen3-dpop Kubernetes Secret for the DPoP shared secret. Synced from Secrets Manager ("<global.environment>-gen3-dpop") when externalSecrets.deploy is true; otherwise created from dpopSharedSecret.
+  createDpopSecret: false
+  # -- (string) DPoP shared secret for fence and DPoP-aware services. Required when createDpopSecret is true and externalSecrets.deploy is false.
+  dpopSharedSecret: ""
   metricsEnabled: true
   # -- (map) External Secrets settings.
   externalSecrets:
+    # -- (string) API version to use for External Secrets resources. Defaults to v1beta1 when unset.
+    apiVersion: "external-secrets.io/v1"
     # -- (bool) Will use ExternalSecret resources to pull secrets from Secrets Manager instead of creating them locally. Be cautious as this will override secrets you have deployed.
     deploy: false
     # -- (bool) Will create the databases and store the creds in Kubernetes Secrets even if externalSecrets is deployed. Useful if you want to use ExternalSecrets for other secrets besides db secrets.
@@ -143,6 +154,8 @@ global:
     topologyKey: "topology.kubernetes.io/zone"
     # -- (int) The maxSkew to use for topology spread constraints. Defaults to 1.
     maxSkew: 1
+  # -- (string) argo server host URL:PORT. Endpoint for the the Argo Workflows service.
+  argoHost: http://argo-argo-workflows-server.argo.svc.cluster.local:2746
 
 # Dependancy Charts
 
@@ -162,6 +175,10 @@ audit:
   # -- (bool) Whether to deploy the audit subchart.
   enabled: true
 
+aws-sigv4-proxy:
+  # -- (bool) Where to deploy the more up-to-date aws-sigv4-proxy
+  enabled: false
+
 aws-es-proxy:
   # -- (bool) Whether to deploy the aws-es-proxy subchart.
   enabled: false
@@ -180,7 +197,6 @@ datareplicate:
 
 embedding-management-service:
   enabled: false
-
 
 etl:
   # -- (bool) Whether to deploy the etl subchart.
@@ -244,6 +260,10 @@ gen3-analysis:
 data-upload-cron:
   enabled: false
 
+# -- (map) Configurations for gen3-embeddings chart.
+gen3-embeddings:
+  enabled: false
+
 # -- (map) Configurations for gen3-user-data-library chart.
 gen3-user-data-library:
   # -- (bool) Whether to deploy the gen3-user-data-library subchart.
@@ -289,17 +309,11 @@ hatchery:
         - "/bin/sh"
         - root
     containers:
-      # -- (int) port to proxy traffic to in docker contaniner
       - target-port: 8888
-        # -- (string) cpu limit of workspace container
-        cpu-limit: "1.0"
-        # -- (string) memory limit of workspace container
-        memory-limit: 2Gi
-        # -- (string) name of workspace
+        cpu-limit: "2"
+        memory-limit: 3Gi
         name: "(Tutorials) Example Analysis Jupyter Lab Notebooks"
-        # -- (string) docker image for workspace
-        image: quay.io/cdis/heal-notebooks:combined_tutorials__latest
-        # -- environment variables for workspace container
+        image: quay.io/cdis/jupyter-superslim:2.1.0
         env:
           FRAME_ANCESTORS: https://{{ .Values.global.hostname }}
         args:
@@ -319,7 +333,7 @@ hatchery:
           - "-c"
           - export IAM=`whoami`; rm -rf /home/$IAM/pd/dockerHome; rm -rf /home/$IAM/pd/lost+found;
             ln -s /data /home/$IAM/pd/; true
-        user-uid: 1000
+        user-uid: 1010
         fs-gid: 100
         user-volume-location: "/home/jovyan/pd"
         gen3-volume-location: "/home/jovyan/.gen3"
@@ -341,6 +355,14 @@ manifestservice:
 metadata:
   # -- (bool) Whether to deploy the metadata subchart.
   enabled: true
+
+ohdsi-atlas:
+  # -- (bool) Whether to deploy the ohdsi-atlas subchart.
+  enabled: false
+
+ohdsi-webapi:
+  # -- (bool) Whether to deploy the ohdsi-webapi subchart.
+  enabled: false
 
 orthanc:
   # -- (bool) Whether to deploy the orthanc subchart.
@@ -370,8 +392,7 @@ revproxy:
     # -- (bool) Whether to create the custom revproxy ingress
     enabled: false
     # -- (map) Annotations to add to the ingress.
-    annotations:
-      {}
+    annotations: {}
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
     # -- (list) Where to route the traffic.
@@ -391,6 +412,10 @@ ssjdispatcher:
 wts:
   # -- (bool) Whether to deploy the wts subchart.
   enabled: true
+
+zendesk-wrapper:
+  # -- (bool) Whether to deploy the zendesk-wrapper subchart.
+  enabled: false
 
 sower:
   # -- (bool) Whether to deploy the sower subchart.
@@ -413,7 +438,9 @@ access-backend:
 postgresql:
   enabled: true
   image:
-    repository: bitnamilegacy/postgresql
+    registry: quay.io
+    repository: "cdis/docker-bitnami-pgvector"
+    tag: 16
   primary:
     persistence:
       # -- (bool) Option to persist the dbs data.
@@ -473,6 +500,21 @@ pcdcanalysistools:
 amanuensis:
   # -- (bool) Whether to deploy the amanuensis subchart.
   enabled: true
+
+# -- (map) Jupyter Enterprise Gateway for vectis workspaces.
+jeg:
+  # -- (bool) Whether to deploy the jeg subchart.
+  enabled: false
+
+# -- (map) workspace-proxy — per-user workspace HTTP/WebSocket router.
+workspace-proxy:
+  # -- (bool) Whether to deploy the workspace-proxy subchart.
+  enabled: false
+
+# -- (map) vectis-overlays — guppy-compat, siem-service, search-auth-proxy.
+vectis-overlays:
+  # -- (bool) Whether to deploy the vectis-overlays subchart.
+  enabled: false
 
 # -- (map) Secret information for External Secrets and DB Secrets.
 secrets:

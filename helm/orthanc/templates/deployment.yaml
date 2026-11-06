@@ -52,7 +52,7 @@ spec:
           readinessProbe: 
             httpGet:
               path: /system
-              port: 8042
+              port: http
               httpHeaders:
                 - name: Authorization
                   value: Basic cHVibGljOmhlbGxv
@@ -62,7 +62,7 @@ spec:
           livenessProbe: 
             httpGet:
               path: /system
-              port: 8042
+              port: http
               httpHeaders:
                 - name: Authorization
                   value: Basic cHVibGljOmhlbGxv

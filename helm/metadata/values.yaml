@@ -183,6 +183,9 @@ image:
 
 debug: false
 
+# If set to True, this flag will force an authorization check for all metadata query endpoints:
+forceAuthzCheckForMetadataQueries: false
+
 # Environment Variables
 # -- (string) Elasticsearch endpoint.
 esEndpoint: http://gen3-elasticsearch-master:9200
@@ -329,6 +332,16 @@ serviceAnnotations:
     prefix: /index/
     service: http://metadata-service:80
 
+# -- (map) Security context for the containers in the pod
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
 # -- (map) Kubernetes service information.
 service:
   # -- (string) Type of service. Valid values are "ClusterIP", "NodePort", "LoadBalancer", "ExternalName".
@@ -364,4 +377,4 @@ elasticsearch:
       # Here we can add elasticsearch config
 
 schedule: "0 0 1 1 */5"
-suspendCronjob: false
+suspendCronjob: true

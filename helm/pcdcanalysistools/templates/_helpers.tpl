@@ -90,3 +90,10 @@ Create the name of the service account to use
 # {{- .Values.dictionaryUrl }}
 # {{- end }}
 # {{- end }}
+
+{{/*
+  Analysis JWT Keys Secrets Manager Name
+*/}}
+{{- define "analysis-jwt-keys" -}}
+{{- default "analysis-jwt-keys" .Values.externalSecrets.analysisJwtKeys }}
+{{- end }}

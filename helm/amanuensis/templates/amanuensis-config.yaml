@@ -1,0 +1,13 @@
+{{- if or (not .Values.global.externalSecrets.deploy) (and .Values.global.externalSecrets.deploy .Values.externalSecrets.createK8sAmanuensisConfigSecret) }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: amanuensis-config
+stringData:
+  amanuensis-config.yaml: |
+    BASE_URL: https://{{ .Values.global.hostname }}/user
+    {{- with .Values.AMANUENSIS_CONFIG }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+---
+{{- end }}

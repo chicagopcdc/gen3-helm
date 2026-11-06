@@ -65,3 +65,10 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+  gearbox-middleware g3auto Secrets Manager Name
+*/}}
+{{- define "gearbox-middleware-g3auto" -}}
+{{- default "gearbox-middleware-g3auto" .Values.externalSecrets.gearboxMiddlewareG3auto }}
+{{- end }}

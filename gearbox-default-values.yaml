@@ -3,21 +3,16 @@ global:
   dev: false
   portal_app: gitops
   authz_entity_name: "subject"
-  hostname: "gearbox-ped-gearbox-p1.apps.bsd-openshift-prod.bsd.uchicago.edu"
-  # -- (bool) If the service will be deployed with a Pod Disruption Budget. Note- you need to have more than 2 replicas for the pdb to be deployed.
-  pdb: false
-  # -- (int) The minimum amount of pods that are available at all times if the PDB is deployed.
-  minAvailable: 1
-  #  -- (map) This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
-  autoscaling:
-    enabled: false
-    minReplicas: 2
-  # -- (map) Pod security context settings
-  compatibility:
-    # -- (map) OpenShift Settings
-    openshift:
-      # -- (bool) Set to force if deploying to OpenShift
-      adaptSecurityContext: force
+  # Runtime setting: enable the enhanced matching UI (REACT_APP_ENHANCED_UI)
+  enhancedUi: "true"
+
+  gearboxMatchingImage:
+    repository: "quay.io/pcdc/gearbox_be"
+    tag: "pcdc_dev_2026-05-15T13_40_52-05_00"
+    pullPolicy: IfNotPresent
+    # repository: gearbox-be
+    # tag: "test"
+    # pullPolicy: Never
 
 arborist:
   enabled: true
@@ -43,13 +38,10 @@ arborist:
   #     # -- (string) The maximum amount of CPU the container can use
   #     cpu: 500m
   image:
-    repository: "973342646972.dkr.ecr.us-east-1.amazonaws.com/openshift-pcdc/arborist"
-    tag: "latest"
-    pullPolicy: Always
-  # -- (int) Number of replicas for the deployment.
-  # replicaCount: 2
-  service:
-    targetPort: 8080
+    repository: quay.io/pcdc/arborist
+    tag: "2026.03"
+  # LIKE patterns excluded from auth mapping queries (AUTH_MAPPING_PROJECT_EXCLUSION)
+  authMappingProjectExclusion: "ARRAY['programs.pcdc.projects.20260414.%']"
 
 fence:
   enabled: true
@@ -61,221 +53,35 @@ fence:
     - name: ecr-pull-secret
   postgres:
     password: "fence_thisisaweakpassword"
-  volumes:
-    - name: old-config-volume
-      secret:
-        secretName: "fence-secret"
-    - name: json-secret-volume
-      secret:
-        secretName: "fence-json-secret"
-        optional: true
-    - name: creds-volume
-      secret:
-        secretName: "fence-creds"
-    - name: config-helper
-      configMap:
-        name: config-helper
-        optional: true
-    - name: logo-volume
-      configMap:
-        name: "logo-config"
-    - name: config-volume
-      secret:
-        secretName: "fence-config"
-    - name: fence-google-app-creds-secret-volume
-      secret:
-        secretName: "fence-google-app-creds-secret"
-    - name: fence-google-storage-creds-secret-volume
-      secret:
-        secretName: "fence-google-storage-creds-secret"
-    - name: fence-jwt-keys
-      secret:
-        secretName: "fence-jwt-keys"
-    - name: privacy-policy
-      configMap:
-        name: "privacy-policy"
-    - name: yaml-merge
-      configMap:
-        name: "fence-yaml-merge"
-        optional: true
-    - name: config-volume-public
-      configMap:
-        name: "manifest-fence"
-        optional: true
-    - name: nginx-config
-      configMap:
-        name: nginx-config
-        items:
-          - key: nginx.conf
-            path: nginx.conf
-
-  volumeMounts:
-    - name: "old-config-volume"
-      readOnly: true
-      mountPath: "/var/www/fence/local_settings.py"
-      subPath: local_settings.py
-    - name: "json-secret-volume"
-      readOnly: true
-      mountPath: "/var/www/fence/fence_credentials.json"
-      subPath: fence_credentials.json
-    - name: "creds-volume"
-      readOnly: true
-      mountPath: "/var/www/fence/creds.json"
-      subPath: creds.json
-    - name: "config-helper"
-      readOnly: true
-      mountPath: "/var/www/fence/config_helper.py"
-      subPath: config_helper.py
-    - name: "logo-volume"
-      readOnly: true
-      mountPath: "/fence/fence/static/img/logo.svg"
-      subPath: "logo.svg"
-    - name: "privacy-policy"
-      readOnly: true
-      mountPath: "/fence/fence/static/privacy_policy.md"
-      subPath: "privacy_policy.md"
-    - name: "config-volume"
-      readOnly: true
-      mountPath: "/var/www/fence/fence-config.yaml"
-      subPath: fence-config.yaml
-    - name: "yaml-merge"
-      readOnly: true
-      mountPath: "/var/www/fence/yaml_merge.py"
-      subPath: yaml_merge.py
-    - name: "fence-google-app-creds-secret-volume"
-      readOnly: true
-      mountPath: "/var/www/fence/fence_google_app_creds_secret.json"
-      subPath: fence_google_app_creds_secret.json
-    - name: "fence-google-storage-creds-secret-volume"
-      readOnly: true
-      mountPath: "/var/www/fence/fence_google_storage_creds_secret.json"
-      subPath: fence_google_storage_creds_secret.json
-    - name: "fence-jwt-keys"
-      readOnly: true
-      mountPath: "/fence/keys/key/jwt_private_key.pem"
-      subPath: "jwt_private_key.pem"
-    - name: "fence-jwt-keys"
-      readOnly: true
-      mountPath: "/fence/keys/key/jwt_public_key.pem"
-      subPath: "jwt_public_key.pem"
-    - name: "config-volume-public"
-      readOnly: true
-      mountPath: "/var/www/fence/fence-config-public.yaml"
-      subPath: fence-config-public.yaml
-    - name: nginx-config
-      mountPath: /etc/nginx/nginx.conf
-      subPath: nginx.conf
-      readOnly: true
-
-    # -- (list) Volumes to mount to the init container.
-
-  initVolumeMounts:
-    - name: "config-volume"
-      readOnly: true
-      mountPath: "/var/www/fence/fence-config.yaml"
-      subPath: fence-config.yaml
-    - name: "config-volume-public"
-      readOnly: true
-      mountPath: "/var/www/fence/fence-config-public.yaml"
-      subPath: fence-config-public.yaml
-    - name: "yaml-merge"
-      readOnly: true
-      mountPath: "/var/www/fence/yaml_merge.py"
-      subPath: yaml_merge.py
-    - name: "fence-google-app-creds-secret-volume"
-      readOnly: true
-      mountPath: "/var/www/fence/fence_google_app_creds_secret.json"
-      subPath: fence_google_app_creds_secret.json
-    - name: "fence-google-storage-creds-secret-volume"
-      readOnly: true
-      mountPath: "/var/www/fence/fence_google_storage_creds_secret.json"
-      subPath: fence_google_storage_creds_secret.json
-  env:
-    - name: GEN3_UWSGI_TIMEOUT
-      valueFrom:
-        configMapKeyRef:
-          name: manifest-global
-          key: uwsgi-timeout
-          optional: true
-    - name: DD_AGENT_HOST
-      valueFrom:
-        fieldRef:
-          fieldPath: status.hostIP
-    - name: AWS_STS_REGIONAL_ENDPOINTS
-      value: regional
-    - name: PYTHONPATH
-      value: /var/www/fence
-    - name: GEN3_DEBUG
-      value: "False"
-    - name: PGHOST
-      valueFrom:
-        secretKeyRef:
-          name: fence-dbcreds
-          key: host
-          optional: false
-    - name: PGUSER
-      valueFrom:
-        secretKeyRef:
-          name: fence-dbcreds
-          key: username
-          optional: false
-    - name: PGPASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: fence-dbcreds
-          key: password
-          optional: false
-    - name: PGDB
-      valueFrom:
-        secretKeyRef:
-          name: fence-dbcreds
-          key: database
-          optional: false
-    - name: DBREADY
-      valueFrom:
-        secretKeyRef:
-          name: fence-dbcreds
-          key: dbcreated
-          optional: false
-    - name: DB
-      value: postgresql://$(PGUSER):$(PGPASSWORD)@$(PGHOST):5432/$(PGDB)
-    - name: INDEXD_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: indexd-service-creds
-          key: fence
-          optional: true
-    - name: gen3Env
-      valueFrom:
-        configMapKeyRef:
-          name: manifest-global
-          key: hostname
-    - name: OPENSHIFT
-      value: "true"
-  service:
-    targetPort: 8080
-
-  podSecurityContext:
-    supplementalGroups:
-      - 1000
-  # -- (map) Resource requests and limits for the containers in the pod
-  # resources:
-  #   # -- (map) The amount of resources that the container requests
-  #   requests:
-  #     # -- (string) The amount of memory requested
-  #     memory: 12Mi
-  #     # -- (string) The amount of CPU requested (e.g., 100m = 0.1 CPU)
-  #     cpu: 100m
-  #   # -- (map) The maximum amount of resources that the container is allowed to use
-  #   limits:
-  #     # -- (string) The maximum amount of memory the container can use
-  #     memory: 512Mi
-  #     # -- (string) The maximum amount of CPU the container can use
-  #     cpu: 500m
+  FENCE_CONFIG:
+    DEBUG: true
+    MOCK_STORAGE: true
+    #fill in
+    AMANUENSIS_PUBLIC_KEY_PATH: "/fence/keys/key/jwt_public_key.pem"
+    MOCK_GOOGLE_AUTH: true
+    mock_default_user: "test@example.com"
+    DOCUMENT_TYPES: ['privacy-policy', 'terms-and-conditions']
+    INITIAL_DOCUMENTS:
+      'privacy-policy':
+        type: "privacy-policy"
+        version: 1
+        name: "Privacy Notice"
+        raw: "https://github.com/chicagopcdc/chicagopcdc.github.io/blob/pp_tc_v2/docs/PcdcPrivacyNotice.md"
+        formatted: "https://docs.pedscommons.org/PcdcPrivacyNotice/"
+        required: true
+      'terms-and-conditions':
+        type: "terms-and-conditions"
+        version: 1
+        name: "Terms and Conditions"
+        raw: "https://github.com/chicagopcdc/chicagopcdc.github.io/blob/pp_tc_v2/docs/TermsAndConditions.md"
+        formatted: "https://docs.pedscommons.org/TermsAndConditions/"
+        required: true
+    BASIC_REGISTRATION_ACCESS_POLICY: [base_access]
+ 
   image:
-    repository: "973342646972.dkr.ecr.us-east-1.amazonaws.com/openshift-pcdc/fence"
-    tag: "latest"
-    pullPolicy: Always
+    repository: "quay.io/pcdc/fence"
+    tag: "3.8.4"
+    pullPolicy: "IfNotPresent"
   USER_YAML: |
     authz:
 
@@ -354,8 +160,8 @@ fence:
 portal:
   enabled: true
   image:
-    repository: "973342646972.dkr.ecr.us-east-1.amazonaws.com/openshift-pcdc/gearbox-fe"
-    tag: "latest"
+    repository: "quay.io/pcdc/gearbox_fe"
+    tag: "dev"
     pullPolicy: Always
   # -- (map) Resource requests and limits for the containers in the pod
   # resources:
@@ -379,14 +185,9 @@ portal:
       {
         "s3_bucket": "https://test-compose-gearbox-data-bucket-with-versioning.s3.amazonaws.com"
       }
-  imagePullSecrets:
-    - name: ecr-pull-secret
-  podSecurityContext:
-    runAsNonRoot: true
-    runAsUser: 1000970000
-    runAsGroup: 1000970000
-    fsGroup: 1000970000
+  documentRoot: /usr/share/nginx/html
   gearboxS3Bucket: "https://test-compose-gearbox-data-bucket-with-versioning.s3.amazonaws.com"
+
 
 revproxy:
   enabled: true
@@ -401,235 +202,28 @@ revproxy:
     type: ClusterIP
     targetPort: 8080
   image:
-    repository: quay.io/cdis/nginx
-    tag: 2025.09
-  # autoscaling:
-  #   averageCPUValue: 300m
-  #   averageMemoryValue: 256Mi
-  # -- (map) Resource requests and limits for the containers in the pod
-  # resources:
-  #   # -- (map) The amount of resources that the container requests
-  #   requests:
-  #     # -- (string) The amount of CPU requested (e.g., 100m = 0.1 CPU)
-  #     cpu: 100m
-  #     # -- (string) The amount of memory requested
-  #     memory: 12Mi
-  #   # -- (map) The maximum amount of resources that the container is allowed to use
-  #   limits:
-  #     # -- (string) The maximum amount of memory the container can use
-  #     memory: 512Mi
-  #     # -- (string) The maximum amount of CPU the container can use
-  #     cpu: 500m
-
-  # OpenShift Route configuration (replaces Ingress on OpenShift)
-  openshiftRoute:
-    enabled: true
-    # Leave host empty to auto-generate, or specify your desired hostname
-    host: "gearbox-ped-gearbox-p1.apps.bsd-openshift-prod.bsd.uchicago.edu" # Auto-generates: <app>-<namespace>.apps.<cluster-domain>
-    annotations:
-      openshift.io/host.generated: "true"
+    repository: "quay.io/cdis/nginx"
+    tag: "2026.04"
 
 gearbox:
   enabled: true
-  # replicaCount: 2
-  postgres:
-    password: "gearbox_thisisaweakpassword"
-  # autoscaling:
-  #   averageCPUValue: 300m
-  #   averageMemoryValue: 256Mi
-  imagePullSecrets:
-    - name: ecr-pull-secret
-  podSecurityContext:
-    supplementalGroups:
-      - 1000
-  image:
-    repository: "973342646972.dkr.ecr.us-east-1.amazonaws.com/openshift-pcdc/gearbox-matching"
-    tag: "latest"
-    pullPolicy: Always
-  service:
-    targetPort: 8080
-  volumes:
-    - name: config-volume
-      secret:
-        secretName: "gearbox-g3auto"
-    - name: gearbox-middleware-jwt-keys
-      secret:
-        secretName: "gearbox-middleware-jwt-keys"
-        items:
-          - key: jwt_public_key.pem
-            path: jwt_public_key.pem
-        optional: false
-    - name: nginx-config
-      configMap:
-        name: nginx-config
-        items:
-          - key: nginx.conf
-            path: nginx.conf
-  volumeMounts:
-    - name: "gearbox-middleware-jwt-keys"
-      readOnly: true
-      mountPath: "/gearbox/src/gearbox/keys/jwt_public_key.pem"
-      subPath: jwt_public_key.pem
-    - name: config-volume
-      readOnly: true
-      mountPath: /gearbox/.env
-      subPath: gearbox.env
-    - name: nginx-config
-      mountPath: /etc/nginx/nginx.conf
-      subPath: nginx.conf
-      readOnly: true
-  # resources:
-  #   # -- (map) The amount of resources that the container requests
-  #   requests:
-  #     # -- (string) The amount of memory requested
-  #     memory: 12Mi
-  #     # -- (string) The amount of CPU requested (e.g., 100m = 0.1 CPU)
-  #     cpu: 100m
-  #   # -- (map) The maximum amount of resources that the container is allowed to use
-  #   limits:
-  #     # -- (string) The maximum amount of memory the container can use
-  #     memory: 512Mi
-  #     # -- (string) The maximum amount of CPU the container can use
-  #     cpu: 500m
-  env:
-    - name: GEN3_DEBUG
-      value: "False"
-    - name: DB_DATABASE
-      valueFrom:
-        secretKeyRef:
-          name: gearbox-dbcreds
-          key: database
-          optional: false
-    - name: DB_HOST
-      valueFrom:
-        secretKeyRef:
-          name: gearbox-dbcreds
-          key: host
-          optional: false
-    - name: DB_USER
-      valueFrom:
-        secretKeyRef:
-          name: gearbox-dbcreds
-          key: username
-          optional: false
-    - name: ADMIN_LOGINS
-      valueFrom:
-        secretKeyRef:
-          name: gearbox-g3auto
-          key: base64Authz.txt
-          optional: true
-    - name: DB_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: gearbox-dbcreds
-          key: password
-          optional: false
-    - name: DBREADY
-      valueFrom:
-        secretKeyRef:
-          name: gearbox-dbcreds
-          key: dbcreated
-          optional: false
-    - name: OPENSHIFT
-      value: "true"
+
 gearbox-middleware:
   enabled: true
-  # replicaCount: 2
-  # autoscaling:
-  #   averageCPUValue: 300m
-  #   averageMemoryValue: 256Mi
-  imagePullSecrets:
-    - name: ecr-pull-secret
-  podSecurityContext:
-    supplementalGroups:
-      - 1000
-  gearboxMiddlewareG3auto:
-    testing: False
-  service:
-    targetPort: 8080
+  postgres:
+    password: "gearbox_thisisaweakpassword"
   image:
-    repository: "973342646972.dkr.ecr.us-east-1.amazonaws.com/openshift-pcdc/gearbox-middleware"
-    tag: "latest"
-    pullPolicy: Always
-  # -- (list) Volumes to attach to the container.
-  volumes:
-    - name: config-volume
-      secret:
-        secretName: "gearbox-middleware-g3auto"
-    - name: gearbox-middleware-jwt-keys
-      secret:
-        secretName: "gearbox-middleware-jwt-keys"
-        items:
-          - key: jwt_private_key.pem
-            path: jwt_private_key.pem
-        optional: false
-    - name: nginx-config
-      configMap:
-        name: nginx-config
-        items:
-          - key: nginx.conf
-            path: nginx.conf
-  volumeMounts:
-    - name: "gearbox-middleware-jwt-keys"
-      readOnly: true
-      mountPath: "/gearbox-middleware/gearbox_middleware/keys/jwt_private_key.pem"
-      subPath: jwt_private_key.pem
-    - name: config-volume
-      readOnly: true
-      mountPath: /gearbox-middleware/.env
-      subPath: gearbox-middleware.env
-    - name: nginx-config
-      mountPath: /etc/nginx/nginx.conf
-      subPath: nginx.conf
-      readOnly: true
-  env:
-    - name: GEN3_DEBUG
-      value: "False"
-    - name: DB_DATABASE
-      valueFrom:
-        secretKeyRef:
-          name: gearbox-dbcreds
-          key: database
-          optional: false
-    - name: DB_HOST
-      valueFrom:
-        secretKeyRef:
-          name: gearbox-dbcreds
-          key: host
-          optional: false
-    - name: DB_USER
-      valueFrom:
-        secretKeyRef:
-          name: gearbox-dbcreds
-          key: username
-          optional: false
-    - name: DB_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: gearbox-dbcreds
-          key: password
-          optional: false
-    - name: DBREADY
-      valueFrom:
-        secretKeyRef:
-          name: gearbox-dbcreds
-          key: dbcreated
-          optional: false
-    - name: OPENSHIFT
-      value: "true"
-  # resources:
-  #   # -- (map) The amount of resources that the container requests
-  #   requests:
-  #     # -- (string) The amount of memory requested
-  #     memory: 12Mi
-  #     # -- (string) The amount of CPU requested (e.g., 100m = 0.1 CPU)
-  #     cpu: 100m
-  #   # -- (map) The maximum amount of resources that the container is allowed to use
-  #   limits:
-  #     # -- (string) The maximum amount of memory the container can use
-  #     memory: 512Mi
-  #     # -- (string) The maximum amount of CPU the container can use
-  #     cpu: 500m
+    repository: quay.io/pcdc/gearbox-middleware
+    tag: "pcdc_dev_2026-05-13T15_38_39-05_00"
+    pullPolicy: IfNotPresent
+  # image:
+  #   repository: gearbox-middleware
+  #   tag: "test"
+  #   pullPolicy: Never
+  gearboxMiddlewareG3auto:
+    awsaccesskey: "an_access_key"
+    awssecretkey: "a_secret_key"
+    geoapifyApiKey: ""
 
 postgresql:
   image:

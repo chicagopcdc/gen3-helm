@@ -102,3 +102,10 @@ Create the name of the service account to use
   true
 {{- end }}
 {{- end }}
+
+{{/*
+  Amanuensis JWT Keys Secrets Manager Name
+*/}}
+{{- define "amanuensis-jwt-keys" -}}
+{{- default "amanuensis-jwt-keys" .Values.externalSecrets.amanuensisJwtKeys }}
+{{- end }}

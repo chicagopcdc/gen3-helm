@@ -1,4 +1,4 @@
-{{- if not .Values.mountpointCacheEnabled }}
+{{- if not .Values.portalBuild.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -35,6 +35,7 @@ spec:
       {{- end }}
       labels:
         public: "yes"
+        internet: "yes"
         {{- include "portal.selectorLabels" . | nindent 8 }}
         {{- include "common.extraLabels" . | nindent 8 }}
     spec:
@@ -69,6 +70,8 @@ spec:
           name: "privacy-policy"
           optional: true
       {{- end }}
+      - name: nginx-tmp
+        emptyDir: {}
       - name: nginx-config
         configMap:
           name: portal-nginx
@@ -194,26 +197,6 @@ spec:
               ls -la "$DEST_DIR"
 
               log "Init container completed successfully."
-                  
-              # mkdir -p /tmp/repo
-              # cd /tmp/repo
-              # # Clone only the specific branch with minimal history and sparse checkout
-              # git clone \
-              #   --depth 1 \
-              #   --single-branch \
-              #   --branch ${GIT_BRANCH} \
-              #   --filter=blob:none \
-              #   --sparse \
-              #   ${GIT_REPO} custom
-              # cd custom
-
-              # git sparse-checkout set {{ .Values.customConfig.dir }}
-              # cd {{ .Values.customConfig.dir }}
-              # ls
-              # echo 'cp -r * /gen3/config'
-              # cp -r * /gen3/config
-              # echo 'ls /gen3/config'
-              # ls /gen3/config
           volumeMounts:
             - name: config-volume
               mountPath: /gen3/config
@@ -301,6 +284,18 @@ spec:
             - name: PRIVACY_POLICY_URL
               value: {{ .Values.global.privacyPolicyURL | quote }}
             {{- end }}
+            {{- if .Values.global.deployProductionDataUrl }}
+            - name: DEPLOY_PRODUCTION_DATA_URL
+              value: {{ .Values.global.deployProductionDataUrl | quote }}
+            {{- end }}
+            {{- if .Values.global.refreshProductionDataUrl }}
+            - name: REFRESH_PRODUCTION_DATA_URL
+              value: {{ .Values.global.refreshProductionDataUrl | quote }}
+            {{- end }}
+            {{- if .Values.global.enhancedUi }}
+            - name: REACT_APP_ENHANCED_UI
+              value: {{ .Values.global.enhancedUi | quote }}
+            {{- end }}
             {{- if .Values.global.mapboxToken }}
             - name: MAPBOX_API_TOKEN
               # Optional token for mapbox api
@@ -356,7 +351,19 @@ spec:
               subPath: gitops.json
             - name: config-volume
               mountPath: /data-portal/custom/
+            - name: "nginx-config"
+              mountPath: "/etc/nginx/conf.d/nginx.conf"
+              subPath: "nginx.conf"
+            - name: "nginx-config"
+              mountPath: "/etc/nginx/nginx.conf"
+              subPath: "main"
             {{-  else }}
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: main
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/nginx.conf
+              subPath: nginx.conf
             - name: "config-volume"
               mountPath: "/data-portal/data/config/pcdc.json"
               subPath: "gitops.json"
@@ -385,4 +392,6 @@ spec:
               mountPath: "/data-portal/custom/privacy_policy.md"
               subPath: "privacy_policy.md"
             {{- end }}
+            - name: nginx-tmp
+              mountPath: /tmp
 {{- end }}

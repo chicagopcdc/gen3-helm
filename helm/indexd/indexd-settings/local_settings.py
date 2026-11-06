@@ -30,6 +30,10 @@ dist = environ.get("DIST", None)
 if dist:
     CONFIG["DIST"] = json.loads(dist)
 
+drs_service_info = environ.get("DRS_SERVICE_INFO", None)
+if drs_service_info:
+    CONFIG["DRS_SERVICE_INFO"] = json.loads(drs_service_info)
+
 arborist = environ.get("ARBORIST", "false").lower() == "true"
 
 USE_SINGLE_TABLE = environ.get("USE_SINGLE_TABLE", "false").lower() == "true"
@@ -83,5 +87,32 @@ else:
             usr=usr, psw=psw, pghost=pghost, pgport=pgport, db=db
         )
     )
+
+cloud_provider_map = environ.get("CLOUD_PROVIDER_MAP", None)
+if cloud_provider_map:
+    CONFIG["CLOUD_PROVIDER_MAP"] = json.loads(cloud_provider_map)
+else:
+    CONFIG["CLOUD_PROVIDER_MAP"] = {
+        "s3": "aws",
+        "gs": "gcp",
+        "az": "azure",
+    }
+
+drs_authorization_metadata = environ.get("DRS_AUTHORIZATION_METADATA", None)
+if drs_authorization_metadata:
+    CONFIG["DRS_AUTHORIZATION_METADATA"] = json.loads(drs_authorization_metadata)
+
+default_bearer_issuer = environ.get("DEFAULT_BEARER_ISSUER", None)
+if default_bearer_issuer:
+    CONFIG["DEFAULT_BEARER_ISSUER"] = default_bearer_issuer
+
+default_passport_issuer = environ.get("DEFAULT_PASSPORT_ISSUER", None)
+if default_passport_issuer:
+    CONFIG["DEFAULT_PASSPORT_ISSUER"] = default_passport_issuer
+
+default_preferred_type = environ.get("DEFAULT_PREFERRED_TYPE", None)
+
+if default_preferred_type:
+    CONFIG["DEFAULT_PREFERRED_TYPE"] = default_preferred_type
 
 settings = {"config": CONFIG, "auth": AUTH}

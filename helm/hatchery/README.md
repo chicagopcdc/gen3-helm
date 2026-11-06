@@ -1,14 +1,18 @@
 # hatchery
 
-![Version: 0.1.62](https://img.shields.io/badge/Version-0.1.62-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: master](https://img.shields.io/badge/AppVersion-master-informational?style=flat-square)
+![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: master](https://img.shields.io/badge/AppVersion-master-informational?style=flat-square)
 
 A Helm chart for gen3 Hatchery
 
+Published versions of this chart are listed in the
+[Helm repository](https://helm.gen3.org) (`helm search repo gen3`) and on the
+[releases page](https://github.com/uc-cdis/gen3-helm/releases).
+
 ## Requirements
 
-| Repository | Name | Version |
-|------------|------|---------|
-| file://../common | common | 0.1.30 |
+| Repository | Name |
+|------------|------|
+| file://../common | common |
 
 ## Values
 
@@ -73,12 +77,14 @@ A Helm chart for gen3 Hatchery
 | global.topologySpread.maxSkew | int | `1` | The maxSkew to use for topology spread constraints. Defaults to 1. |
 | global.topologySpread.topologyKey | string | `"topology.kubernetes.io/zone"` | The topology key to use for spreading. Defaults to "topology.kubernetes.io/zone". |
 | global.vpcId | string | `nil` | Environment name. This should be the same as vpcname if you're doing an AWS deployment. Currently this is being used to share ALB's if you have multiple namespaces. Might be used other places too. |
-| hatchery.containers | list | `[{"args":["--NotebookApp.base_url=/lw-workspace/proxy/","--NotebookApp.default_url=/lab","--NotebookApp.password=''","--NotebookApp.token=''","--NotebookApp.shutdown_no_activity_timeout=5400","--NotebookApp.quit_button=False"],"command":["start-notebook.sh"],"cpu-limit":"1.0","env":{"FRAME_ANCESTORS":"https://{{ .Values.global.hostname }}"},"fs-gid":100,"gen3-volume-location":"/home/jovyan/.gen3","image":"quay.io/cdis/heal-notebooks:combined_tutorials__latest","lifecycle-post-start":["/bin/sh","-c","export IAM=`whoami`; rm -rf /home/$IAM/pd/dockerHome; rm -rf /home/$IAM/pd/lost+found; ln -s /data /home/$IAM/pd/; true"],"memory-limit":"2Gi","name":"(Tutorials) Example Analysis Jupyter Lab Notebooks","path-rewrite":"/lw-workspace/proxy/","ready-probe":"/lw-workspace/proxy/","target-port":8888,"use-tls":"false","user-uid":1000,"user-volume-location":"/home/jovyan/pd"}]` | Notebook configuration. |
+| hatchery.containers | list | `[{"args":["--JupyterNotebookApp.base_url=/lw-workspace/proxy/","--JupyterNotebookApp.default_url=/lab","--JupyterNotebookApp.password=''","--JupyterNotebookApp.token=''","--JupyterNotebookApp.shutdown_no_activity_timeout=5400","--JupyterNotebookApp.quit_button=False"],"command":["start-notebook.sh"],"cpu-limit":"2","env":{"FRAME_ANCESTORS":"https://{{ .Values.global.hostname }}"},"fs-gid":100,"gen3-volume-location":"/home/jovyan/.gen3","image":"quay.io/cdis/jupyter-superslim:2.1.0","lifecycle-post-start":["/bin/sh","-c","export IAM=`whoami`; rm -rf /home/$IAM/pd/dockerHome; rm -rf /home/$IAM/pd/lost+found; ln -s /data /home/$IAM/pd/; true"],"memory-limit":"3Gi","name":"(Tutorials) Example Analysis Jupyter Lab Notebooks","path-rewrite":"/lw-workspace/proxy/","ready-probe":"/lw-workspace/proxy/","target-port":8888,"use-tls":"false","user-uid":1010,"user-volume-location":"/home/jovyan/pd"}]` | Notebook configuration. |
 | hatchery.json | string | `""` |  |
+| hatchery.oidcProviderArn | string | `""` |  |
 | hatchery.reaper.enabled | bool | `true` |  |
 | hatchery.reaper.idleTimeoutSeconds | int | `3600` |  |
 | hatchery.reaper.schedule | string | `"*/15 * * * *"` |  |
 | hatchery.reaper.suspendCronjob | bool | `false` |  |
+| hatchery.sharedWorkspaceEnabled | bool | `false` |  |
 | hatchery.sidecarContainer.args | list | `[]` | Arguments to pass to the sidecare container. |
 | hatchery.sidecarContainer.command | list | `["/bin/bash","./sidecar.sh"]` | Commands to run for the sidecar container. |
 | hatchery.sidecarContainer.cpu-limit | string | `"0.1"` | The maximum amount of CPU the sidecar container can use |
@@ -113,6 +119,7 @@ A Helm chart for gen3 Hatchery
 | resources.limits.memory | string | `"512Mi"` | The maximum amount of memory the container can use |
 | resources.requests | map | `{"memory":"12Mi"}` | The amount of resources that the container requests |
 | resources.requests.memory | string | `"12Mi"` | The amount of memory requested |
+| securityContext | map | `{}` | Security context for the containers in the pod |
 | selectorLabels | map | `nil` | Will completely override the selectorLabels defined in the common chart's _label_setup.tpl |
 | service | map | `{"port":80,"targetPort":8000,"type":"ClusterIP"}` | Kubernetes service information. |
 | service.port | int | `80` | The port number that the service exposes. |
@@ -124,6 +131,7 @@ A Helm chart for gen3 Hatchery
 | tolerations | list | `[]` | Tolerations to use for the deployment. |
 | volumeMounts | list | `[{"mountPath":"/var/hatchery/hatchery.json","name":"hatchery-config","readOnly":true,"subPath":"json"},{"mountPath":"/hatchery.json","name":"hatchery-config","readOnly":true,"subPath":"json"}]` | Volumes to mount to the container. |
 | volumes | list | `[{"configMap":{"name":"manifest-hatchery"},"name":"hatchery-config"}]` | Volumes to attach to the container. |
+| workspaceInternetEgress | bool | `true` |  |
 | workspaceLaunchTest | map | `{"enabled":false,"hostname":"https://example.com","operatorName":"username","schedule":"*/20 * * * *","workspaceImages":"(Generic) Jupyter Lab Notebook with R Kernel"}` | Configuration for workspace launch test crobjob |
 | workspaceLaunchTest.enabled | bool | `false` | Whether the workspace launch test cron job is enabled. |
 | workspaceLaunchTest.hostname | string | `"https://example.com"` | Hostname for the workspace launch test operator. |

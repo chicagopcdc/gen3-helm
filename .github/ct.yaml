@@ -6,9 +6,11 @@ chart-repos:
   - bitnami=https://charts.bitnami.com/bitnami
   - elastic=https://helm.elastic.co
   - grafana=https://grafana.github.io/helm-charts
-  - ohsu=https://ohsu-comp-bio.github.io/helm-charts
+  - calypr=https://calypr.github.io/helm-charts
 helm-extra-args: --timeout 600s
-check-version-increment: true
+# Chart versions are frozen at a placeholder in git and derived from tags at
+# release time, so there is no per-PR bump to enforce.
+check-version-increment: false
 debug: false
 validate-maintainers: false
 helm-dependency-extra-args: "--skip-refresh"

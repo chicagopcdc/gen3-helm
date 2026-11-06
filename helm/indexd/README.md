@@ -1,15 +1,19 @@
 # indexd
 
-![Version: 0.1.39](https://img.shields.io/badge/Version-0.1.39-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: master](https://img.shields.io/badge/AppVersion-master-informational?style=flat-square)
+![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: master](https://img.shields.io/badge/AppVersion-master-informational?style=flat-square)
 
 A Helm chart for gen3 indexd
 
+Published versions of this chart are listed in the
+[Helm repository](https://helm.gen3.org) (`helm search repo gen3`) and on the
+[releases page](https://github.com/uc-cdis/gen3-helm/releases).
+
 ## Requirements
 
-| Repository | Name | Version |
-|------------|------|---------|
-| file://../common | common | 0.1.30 |
-| https://charts.bitnami.com/bitnami | postgresql | 11.9.13 |
+| Repository | Name |
+|------------|------|
+| file://../common | common |
+| https://charts.bitnami.com/bitnami | postgresql |
 
 ## Values
 
@@ -17,9 +21,13 @@ A Helm chart for gen3 indexd
 |-----|------|---------|-------------|
 | affinity | map | `{}` | Affinity to use for the deployment. |
 | autoscaling | object | `{}` |  |
+| cloudProviderMap.az | string | `"azure"` |  |
+| cloudProviderMap.gs | string | `"gcp"` |  |
+| cloudProviderMap.s3 | string | `"aws"` |  |
 | commonLabels | map | `nil` | Will completely override the commonLabels defined in the common chart's _label_setup.tpl |
 | criticalService | string | `"true"` | Valid options are "true" or "false". If invalid option is set- the value will default to "false". |
-| defaultPrefix | string | `"PREFIX/"` | default prefix for indexd |
+| defaultPrefix | string | `"PREFIX/"` | default prefix for indexd - must end in slash |
+| drsServiceInfo | map | `{}` | Overrides for the DRS service-info response (/ga4gh/drs/v1/service-info). Default `id` is the hostname in reverse. Default `organization.url` is `https://<global.hostname>`. To change a value, add it here, for example `organization.name`. The chart sends these values to indexd in the `DRS_SERVICE_INFO` env var. Leave this empty to use the defaults. |
 | env | list | `[{"name":"ARBORIST","value":"true"},{"name":"GEN3_DEBUG","value":"False"}]` | Environment variables to pass to the container |
 | externalSecrets | map | `{"createK8sServiceCredsSecret":false,"dbcreds":null,"pushSecret":false,"serviceCreds":"indexd-service-creds"}` | External Secrets settings. |
 | externalSecrets.createK8sServiceCredsSecret | string | `false` | Will create the Helm "indexd-service-creds" secret even if Secrets Manager is enabled. This is helpful if you are wanting to use External Secrets for some, but not all secrets. |
@@ -66,12 +74,14 @@ A Helm chart for gen3 indexd
 | global.topologySpread.enabled | bool | `false` | Whether to enable topology spread constraints for all subcharts that support it. |
 | global.topologySpread.maxSkew | int | `1` | The maxSkew to use for topology spread constraints. Defaults to 1. |
 | global.topologySpread.topologyKey | string | `"topology.kubernetes.io/zone"` | The topology key to use for spreading. Defaults to "topology.kubernetes.io/zone". |
-| image | map | `{"pullPolicy":"IfNotPresent","repository":"quay.io/cdis/indexd","tag":""}` | Docker image information. |
-| image.pullPolicy | string | `"IfNotPresent"` | When to pull the image. |
+| image | map | `{"pullPolicy":"Always","repository":"quay.io/cdis/indexd","tag":""}` | Docker image information. |
+| image.pullPolicy | string | `"Always"` | When to pull the image. |
 | image.repository | string | `"quay.io/cdis/indexd"` | The Docker image repository for the indexd service |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | Docker image pull secrets. |
+| maxBulkRequestLength | int | `100` | The maximum number of records that can be processed in a single bulk request. This is used to prevent large requests from overwhelming the system. |
 | metricsEnabled | bool | `false` | Whether Metrics are enabled. indexd doesn't expose metrics yet. |
+| migrateToSingleTable.args | string | `nil` |  |
 | nameOverride | string | `""` | Override the name of the chart. |
 | netPolicy | map | `{"egressApps":["fence","presigned-url-fence","fenceshib","peregrine","sheepdog","ssjdispatcherjob","metadata","mariner","mariner-engine"],"ingressApps":["fence","presigned-url-fence","fenceshib","peregrine","sheepdog","ssjdispatcherjob","metadata","mariner","mariner-engine"]}` | Configuration for network policies created by this chart. Only relevant if "global.netPolicy.enabled" is set to true |
 | netPolicy.egressApps | array | `["fence","presigned-url-fence","fenceshib","peregrine","sheepdog","ssjdispatcherjob","metadata","mariner","mariner-engine"]` | List of apps that this app requires egress to |
@@ -102,7 +112,7 @@ A Helm chart for gen3 indexd
 | secrets.awsSecretAccessKey | str | `nil` | AWS secret access key ID to access the db restore job S3 bucket. Overrides global key. |
 | securityContext | map | `{}` | Security context for the containers in the pod |
 | selectorLabels | map | `nil` | Will completely override the selectorLabels defined in the common chart's _label_setup.tpl |
-| service | map | `{"port":80,"type":"ClusterIP"}` | Kubernetes service information. |
+| service | map | `{"port":80,"targetPort":80,"type":"ClusterIP"}` | Kubernetes service information. |
 | service.port | int | `80` | The port number that the service exposes. |
 | service.type | string | `"ClusterIP"` | Type of service. Valid values are "ClusterIP", "NodePort", "LoadBalancer", "ExternalName". |
 | serviceAccount | map | `{"annotations":{},"create":false,"name":""}` | Service account to use or create. |
@@ -110,6 +120,10 @@ A Helm chart for gen3 indexd
 | serviceAccount.create | bool | `false` | Specifies whether a service account should be created. |
 | serviceAccount.name | string | `""` | The name of the service account |
 | tolerations | list | `[]` | Tolerations for the pods |
+| trustedIssuers | map | `{"defaultBearerIssuer":"","defaultPassportIssuer":"","defaultPreferredType":"BearerAuth"}` | Maps an arborist resource to the issuers for passports and bearer tokens. |
+| trustedIssuers.defaultBearerIssuer | string | `""` | The default issuer for bearer tokens to be used if a given auth resource isn't provided. Defaults to the fence token issuer |
+| trustedIssuers.defaultPassportIssuer | string | `""` | The default issuer for passports to be used if a given auth resource isn't provided. |
+| trustedIssuers.defaultPreferredType | string | `"BearerAuth"` | The default preferred supported_type. This will ensure indexd return this supported_type before the other. |
 | useSingleTable | string | `"False"` |  |
 | uwsgi | map | `{"listen":1024}` | Values for overriding uwsgi settings |
 | volumeMounts | list | `[{"mountPath":"/etc/uwsgi/uwsgi.ini","name":"uwsgi-config","subPath":"uwsgi.ini"},{"mountPath":"/var/www/indexd/local_settings.py","name":"config-volume","readOnly":true,"subPath":"local_settings.py"},{"mountPath":"/indexd/deployment/wsgi/gunicorn.conf.py","name":"gunicorn-conf","readOnly":true,"subPath":"gunicorn.conf.py"}]` | Volumes to mount to the container. |

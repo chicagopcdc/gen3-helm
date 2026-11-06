@@ -10,11 +10,11 @@ spec:
       backoffLimit: 0
       template:
         metadata:
-          {{- with .Values.podAnnotations }}
           annotations:
-            {{- toYaml . | nindent 12 }}
             checksum/config: {{ include (print $.Template.BasePath "/etl-mapping.yaml") . | sha256sum }}
-          {{- end }}
+            {{- with .Values.podAnnotations }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           labels:
             app: gen3job
         spec:
@@ -231,7 +231,7 @@ spec:
                     if [[ $exitcode == 1 ]]; then
                       curl -X POST --data-urlencode "payload={\"text\": \"JOBFAIL: ETL job on ${gen3Env}\"}" "${slackWebHook}"
                     else
-                      curl -X POST --data-urlencode "payload={\"text\": \"SUCCESS: ETL job on ${gen3Env}\"}" "${slackWebHook}"
+                      curl -X POST --data-urlencode "payload={\"text\": \"JOBSUCCESS: ETL job on ${gen3Env}\"}" "${slackWebHook}"
                     fi
                   fi
 
